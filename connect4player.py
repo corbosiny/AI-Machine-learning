@@ -3,6 +3,8 @@ import threading
 import random
 import numpy
 import time
+import connect4PlayerRandom
+
 class Connect4Player(threading.Thread):
 
     def __init__(self, game, playerNum):
@@ -39,9 +41,6 @@ class Connect4Player(threading.Thread):
             return None
         probsCol = [x / sum(probsCol) for x in probsCol]
 
-
-        print(probsRows, end = '\n\n')
-        print(probsCol, end = '\n\n')
         probs = [(x + y) / 2 for x,y in list(zip(probsRows, probsCol))]
         while True:
             prob = random.random()
@@ -49,7 +48,6 @@ class Connect4Player(threading.Thread):
             if prob < probs[move]:
                 move = moves[move]
                 break
-        print(probs, end = '\n\n')
         self.makeMove(move)
 
     def analyzeRows(self):
@@ -66,9 +64,6 @@ class Connect4Player(threading.Thread):
             elif self.game.board[row][column] != '-':
                 row -= 1
 
-            if row > 5:
-                print("Row:", row)
-                raise ValueError('testing')
             moveViability = 1
             if column < 3:
                 numMySyms = 0
@@ -84,7 +79,7 @@ class Connect4Player(threading.Thread):
                     moves.append([-1, column])
                     continue
 
-            elif column < 4:
+            if column < 4 and column > 0:
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 3):
@@ -97,7 +92,7 @@ class Connect4Player(threading.Thread):
                 if self.game.board[row][column - 1] == self.sym:
                     moveViability *= 2
                     numMySyms += 1
-                elif self.game.board[row][column - y] != self.sym and self.game.board[row][column - y] != '-':
+                elif self.game.board[row][column - 1] != self.sym and self.game.board[row][column - 1] != '-':
                     moveViability /= 3
                     numNotMySyms += 1
                     
@@ -119,7 +114,7 @@ class Connect4Player(threading.Thread):
                     moves.append([-1, column])
                     continue
                     
-            elif column > 1:
+            if column > 1 and column < 5:
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 3):
@@ -132,7 +127,7 @@ class Connect4Player(threading.Thread):
                 if self.game.board[row][column + 1] == self.sym:
                     moveViability *= 2
                     numMySyms += 1
-                elif self.game.board[row][column + y] != self.sym and self.game.board[row][column + y] != '-':
+                elif self.game.board[row][column + 1] != self.sym and self.game.board[row][column + 1] != '-':
                     moveViability /= 3
                     numNotMySyms += 1
                     
@@ -183,30 +178,42 @@ class Connect4Player(threading.Thread):
         pass
     
     def run(self):
-        while self.game.winner == None:
-            while self.game.turn != self.playerNum:
-                pass
-            self.generateMove()
+        while True:
+            while self.game.winner == None:
+                while self.game.turn != self.playerNum:
+                    pass
+                self.generateMove()
 
-        if self.game.winner == self.playerNum:
-            self.wins += 1        
-    
+            if self.game.winner == self.playerNum:
+                self.wins += 1        
+            self.game = None
+            while self.game == None:
+                pass
+            
 if __name__ == "__main__":
     newGame = connect4.Connect4Game()
-##    player1 = Connect4Player(newGame, 0)
-##    player2 = Connect4Player(newGame, 1)
-##    player1.start()
-##    player2.start()
-##    
-##    while newGame.winner == None:
-##        pass
-##    print("Winner: Player %d" % newGame.winner)
     player1 = Connect4Player(newGame, 0)
+    player2 = connect4PlayerRandom.Connect4PlayerRandom(newGame, 1)
     player1.start()
-    while newGame.winner == None:
-        while newGame.turn == 0:
-            pass
-        time.sleep(.1)
-        move = int(input('\n>>>>'))
-        newGame.makeMove(move)
+    player2.start()
+
+    for x in range(100):
+        while newGame.winner == None:
+            currentTurn = newGame.turn
+        
+        print("Winner: Player %d" % newGame.winner)
+        newGame = connect4.Connect4Game()
+        player1.game = newGame
+        player2.game = newGame
+
+    print(player1.wins)
+##    player1 = Connect4Player(newGame, 0)
+##    player1.start()
+##    while newGame.winner == None:
+##        while newGame.turn == 0:
+##            pass
+##        time.sleep(.1)
+##        print(newGame)
+##        move = int(input('\n>>>>'))
+##        newGame.makeMove(move)
         

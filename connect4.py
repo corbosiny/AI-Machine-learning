@@ -13,7 +13,7 @@ class Connect4Game():
         if self.winner != None:
             raise ValueError("Game is already over, player %d won" % (self.winner + 1))
         if column > 5 or column < 0 or not isinstance(column, int):
-            raise ValueError('Invalid move')
+            raise ValueError('Invalid move: %d by player %d' % (column, self.turn))
         self.numMoves += 1
         openCol = False
         for row in list(reversed(self.board)):
@@ -24,7 +24,7 @@ class Connect4Game():
                 break
             
         if not openCol:
-            raise ValueError('Invalid move, not an open column')
+            raise ValueError('Invalid move %d by player %d, not an open column' % (column, self.turn))
         
         self.board[row][column] = self.playerSymbols[self.turn]
         gameOver = self.checkWin(row, column)
@@ -33,7 +33,6 @@ class Connect4Game():
         elif self.numMoves == 36:
             self.winner = "DRAW"
         self.turn = int(not self.turn)
-        print(self)
         
 
     def checkHorizontal(self, row, column):
