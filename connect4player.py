@@ -28,24 +28,28 @@ class Connect4Player(threading.Thread):
         if -1 in probsRows:
             move = moves[probsRows.index(-1)]
             self.makeMove(move)
+            return None
         probsRows = [x / sum(probsRows) for x in probsRows]
 
-        movesAndProbsCol = self.analyzeRows()
+        movesAndProbsCol = self.analyzeColumns()
         probsCol = [x[0] for x in movesAndProbsCol]
         if -1 in probsCol:
             move = moves[probsCol.index(-1)]
             self.makeMove(move)
-            
+            return None
         probsCol = [x / sum(probsCol) for x in probsCol]
 
-        probs = [(x + y) / 2 for x,y in list(zip(probsRows, probsRows))]
+
+        print(probsRows, end = '\n\n')
+        print(probsCol, end = '\n\n')
+        probs = [(x + y) / 2 for x,y in list(zip(probsRows, probsCol))]
         while True:
             prob = random.random()
             move = random.randint(0, 5)
             if prob < probs[move]:
                 move = moves[move]
                 break
-        print(probs)
+        print(probs, end = '\n\n')
         self.makeMove(move)
 
     def analyzeRows(self):
@@ -138,7 +142,7 @@ class Connect4Player(threading.Thread):
             moves.append([moveViability, column])
         return moves
     
-    def analyzeColumn(self):
+    def analyzeColumns(self):
         moves = []
         for column in range(6):
             row = 0
@@ -172,7 +176,9 @@ class Connect4Player(threading.Thread):
                     moves.append([moveViability, column])
             else:
                 moves.append([1, column])
-                
+
+        return moves
+
     def analyzeDiagnols(self):
         pass
     
