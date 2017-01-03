@@ -41,7 +41,15 @@ class Connect4Player(threading.Thread):
             return None
         probsCol = [x / sum(probsCol) for x in probsCol]
 
-        probs = [(x + y) / 2 for x,y in list(zip(probsRows, probsCol))]
+        movesAndProbsDiag = self.analyzeDiagnols()
+        probsDiag = [x[0] for x in movesAndProbsDiag]
+        if -1 in probsDiag:
+            move = moves[probsDiag.index(-1)]
+            self.makeMove(move)
+            return None
+        probsDiag = [x / sum(probsDiag) for x in probsDiag]        
+
+        probs = [(x + y + z) / 3 for x,y,z in list(zip(probsRows, probsCol, probsDiag))]
         while True:
             prob = random.random()
             move = random.randint(0, 5)
@@ -65,6 +73,7 @@ class Connect4Player(threading.Thread):
                 row -= 1
 
             moveViability = 1
+            
             if column < 3:
                 numMySyms = 0
                 numNotMySyms = 0
@@ -175,7 +184,218 @@ class Connect4Player(threading.Thread):
         return moves
 
     def analyzeDiagnols(self):
-        pass
+        movesAndProbs = self.analyzeRightDiagnols()
+        movesAndProbs2 = self.analyzeLeftDiagnols()
+
+        moves = [x[1] for x in movesAndProbs]
+        
+        probs0 = [x[0] for x in movesAndProbs]
+        probs2 = [x[0] for x in movesAndProbs2]
+        probs = [(x + y) / 2 for x,y in zip(probs0, probs2)]
+        moves = [[x,y] for x,y in zip(probs, moves)]
+        if -1 in probs0:
+            moves[probs0.index(-1)] = [-1, moves[probs0.index(-1)][1]]
+        if -1 in probs2:
+            moves[probs2.index(-1)] = [-1, moves[probs2.index(-1)][1]]
+        return moves
+        #movesAndProbsLeft = self.analyzeLeftDiagnols()
+        
+
+    def analyzeRightDiagnols(self):
+        moves = []
+        for column in range(6):
+            row = 0
+            while self.game.board[row][column] == "-" and row < 5:
+                row += 1
+
+            if row == 0:
+                moveViability = 0
+                moves.append([moveViability, column])
+                continue 
+            elif self.game.board[row][column] != '-':
+                row -= 1
+
+
+            moveViability = 1
+            
+            if column < 3 and row > 2:
+                numMySyms = 0
+                numNotMySyms = 0
+                for y in range(1,4):
+                    if self.game.board[row - y][column + y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                    elif self.game.board[row - y][column + y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+                        
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            if column < 4 and column > 0 and row > 1 and row < 5:
+                numMySyms = 0
+                numNotMySyms = 0
+                for y in range(1, 3):
+                    if self.game.board[row - y][column + y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                    elif self.game.board[row - y][column + y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+
+                if self.game.board[row + 1][column - 1] == self.sym:
+                    moveViability *= 2
+                    numMySyms += 1
+                elif self.game.board[row + 1][column - 1] != '-':
+                    moveViability /= 3
+                    numNotMySyms += 1
+                    
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            if column > 2 and row < 3:
+                numMySyms = 0
+                numNotMySyms = 0
+
+                for y in range(1, 4):
+                    if self.game.board[row + y][column - y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                    elif self.game.board[row + y][column - y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+                
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            if column > 1 and column < 5 and row < 4 and row > 0:
+                numMySyms = 0
+                numNotMySyms = 0
+
+                for y in range(1, 3):
+                    if self.game.board[row + y][column - y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                        
+                    elif self.game.board[row + y][column - y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+                        
+                if self.game.board[row - 1][column + 1] == self.sym:
+                    moveViability *= 2
+                    numMySyms += 1
+                elif self.game.board[row][column + 1] != '-':
+                    moveViability /= 3
+                    numNotMySyms += 1
+    
+                
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            moves.append([moveViability, column])
+        return moves
+
+    def analyzeLeftDiagnols(self):
+        moves = []
+        for column in range(6):
+            row = 0
+            while self.game.board[row][column] == "-" and row < 5:
+                row += 1
+
+            if row == 0:
+                moveViability = 0
+                moves.append([moveViability, column])
+                continue 
+            elif self.game.board[row][column] != '-':
+                row -= 1
+
+
+            moveViability = 1
+            
+            if column > 2 and row > 2:
+                numMySyms = 0
+                numNotMySyms = 0
+                for y in range(1,4):
+                    if self.game.board[row - y][column - y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                    elif self.game.board[row - y][column - y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+                        
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            if column > 1 and column < 5 and row > 1 and row < 5:
+                numMySyms = 0
+                numNotMySyms = 0
+                for y in range(1, 3):
+                    if self.game.board[row - y][column - y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                    elif self.game.board[row - y][column - y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+
+                if self.game.board[row + 1][column + 1] == self.sym:
+                    moveViability *= 2
+                    numMySyms += 1
+                elif self.game.board[row + 1][column + 1] != '-':
+                    moveViability /= 3
+                    numNotMySyms += 1
+                    
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            if column < 3 and row < 3:
+                numMySyms = 0
+                numNotMySyms = 0
+
+                for y in range(1, 4):
+                    if self.game.board[row + y][column + y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                    elif self.game.board[row + y][column + y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+                
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            if column < 4 and column > 0 and row < 4 and row > 0:
+                numMySyms = 0
+                numNotMySyms = 0
+
+                for y in range(1, 3):
+                    if self.game.board[row + y][column + y] == self.sym:
+                        moveViability *= 2
+                        numMySyms += 1
+                        
+                    elif self.game.board[row + y][column + y] != '-':
+                        moveViability /= 3
+                        numNotMySyms += 1
+                        
+                if self.game.board[row - 1][column - 1] == self.sym:
+                    moveViability *= 2
+                    numMySyms += 1
+                elif self.game.board[row][column - 1] != '-':
+                    moveViability /= 3
+                    numNotMySyms += 1
+    
+                
+                if numMySyms == 3 or numNotMySyms == 3:
+                    moves.append([-1, column])
+                    continue
+                
+            moves.append([moveViability, column])
+        return moves
     
     def run(self):
         while True:
@@ -200,8 +420,10 @@ if __name__ == "__main__":
     for x in range(100):
         while newGame.winner == None:
             currentTurn = newGame.turn
-        
-        print("Winner: Player %d" % newGame.winner)
+        try:
+            print("Winner: Player %d" % newGame.winner)
+        except:
+            print("Winner: Player %s" % newGame.winner)
         newGame = connect4.Connect4Game()
         player1.game = newGame
         player2.game = newGame
