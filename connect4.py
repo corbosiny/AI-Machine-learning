@@ -4,10 +4,10 @@ class Connect4Game():
 
     def __init__(self):
         self.board = [['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-']]
-        self.playerSymbols = ['X','O']
-        self.turn = 0
-        self.winner = None
-        self.numMoves = 0
+        self.playerSymbols = ['X','O']                          
+        self.turn = 0                                                           #used for the AI players to tell if it is their turn
+        self.winner = None                                                      #once this is set, the game is over, also it holds the result of the match
+        self.numMoves = 0                                                       #if numMoves == 36 and no winner than the game is a draw as the board is filled
         
     def makeMove(self, column):
         if self.winner != None:
