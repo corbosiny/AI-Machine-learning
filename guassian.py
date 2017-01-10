@@ -6,7 +6,7 @@ from PIL import Image
 
 class Gaussian():
 
-    def __init__(self, sigmaSquared, mu = 0):
+    def __init__(self, sigmaSquared, mu = 0, tolerance = .01):
         self.mu = mu
         self.sigma2 = sigmaSquared
         if not isinstance(mu, int):
@@ -16,19 +16,24 @@ class Gaussian():
             raise ValueError('The variance must be numerical value')
         
         self.stdEv = math.sqrt(self.sigma2)
-        self.tolerance = .01
+        self.tolerance = tolerance
+        self.stepSize = .001 #adaptive step size will be implemented later on
         
-    def evaluate(self, point):
+    def evaluate(self, point): #returns prob of getting that exact number
         return 1 / math.sqrt(2 * math.pi * self.sigma2) * math.exp(-.5 * math.pow(point - self.mu, 2) / self.sigma2)
 
     def generateNoise(self, size):
         noise = []
         for i in range(size):
             beta = random.random() * self.evaluate(self.mu) * 2
-            choice = random.randrange(int(self.mu - self.stdEv * 4), int(self.mu + self.stdEv * 4)) + random.random()
+            multiplier = random.randint(-1, 1)
+            while multiplier == 0:
+                multiplier = random.randint(-1, 1)
+                
+            choice = random.random() * multiplier * (self.mu + self.stdEv * 4)
             while self.evaluate(choice) < beta + self.tolerance:
                 beta -= self.evaluate(choice)
-                choice = random.randint(int(self.mu - self.stdEv * 4), int(self.mu + self.stdEv * 4))
+                choice = random.random() * float(multiplier) * (self.mu + self.stdEv * 4)
             
             noise.append(choice)
         return noise
@@ -76,22 +81,23 @@ class Gaussian():
         plt.show()
 
 
-    def returnProb(self, num):
+    def returnProbDensity(self, num):  #returns the prob of getting a value of equal to or less than the given value with the distribution parameters
         prob = 0
-        x = self.mu - self.sigma2 * 4
+        x = self.mu - self.stdEv * 4 
         while x < num:
-            prob += self.evaluate(x) * .001
-            x += .001
+            prob += (self.evaluate(x) + self.evaluate(x + self.stepSize)) * self.stepSize * .5
+            x += self.stepSize
         return prob
     
 if __name__ == "__main__":
     guass = Gaussian(1)
-    print(guass.evaluate(10))
+    print(guass.evaluate(1))
+    print(guass.evaluate(-10))
     print(guass.generateNoise(15))
     #guass.plotGaussian()
     kernel = Matrix([[3,2,3], [2,4,2],[5,1,4]])
     print(Gaussian.applyKernel(kernel, guass))
-    #print(guass.returnProb(-1))
-    #print(guass.returnProb(1))
-    #5print(guass.returnProb(1) - guass.returnProb(-1))
+    print(guass.returnProbDensity(-1))
+    print(guass.returnProbDensity(1))
+    print(guass.returnProbDensity(1) - guass.returnProbDensity(-1))
     
