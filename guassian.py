@@ -1,3 +1,4 @@
+from __future__ import division
 import math
 import random
 import matplotlib.pyplot as plt
@@ -6,19 +7,21 @@ from PIL import Image #used for upcoming image filtering
 
 class Gaussian():
 
-    def __init__(self, sigmaSquared, mu = 0, tolerance = .01):
-        self.mu = mu
-        self.sigma2 = sigmaSquared
-        if not isinstance(mu, int):
+    def __init__(self, sigmaSquared, mu = 0, tolerance = .001):
+        if not isinstance(mu, int) and not isinstance(mu, float):
             raise ValueError('Mu must be a numerical value')
     
-        if not isinstance(self.sigma2, int):                    #just checking if proper data types were entered
+        if not isinstance(sigmaSquared, int) and not isinstance(sigmaSquared, float):                    #just checking if proper data types were entered
             raise ValueError('The variance must be numerical value')
+
+        self.mu = float(mu)
+        self.sigma2 = float(sigmaSquared)
         
         self.stdEv = math.sqrt(self.sigma2)
         self.tolerance = tolerance
-        self.stepSize = .001 #adaptive step size will be implemented later on
-        
+        self.stepSize = tolerance #this is an arbitrary value we give it before adjusting the step size, the function to adjust needs a prior stepsize
+        self.stepSize = self.adaptStepSize(mu) #adapts step size for the given tolerance
+
     def evaluate(self, point): #returns prob of getting that exact number
         return 1 / math.sqrt(2 * math.pi * self.sigma2) * math.exp(-.5 * math.pow(point - self.mu, 2) / self.sigma2)
 
@@ -33,7 +36,7 @@ class Gaussian():
             choice = random.random() * multiplier * (self.mu + self.stdEv * 4) #picking my choice, anything outside of four standard deviations is just basically impossible to hit
             while self.evaluate(choice) < beta + self.tolerance:                #if the choices prob is higher than beta, pick it
                 beta -= self.evaluate(choice)                                   #otherwise subtract its prob from beta and pick a new choice, this makes it so we pick higher probs much more often
-                choice = random.random() * float(multiplier) * (self.mu + self.stdEv * 4)#cont. from above: and we preserve the guassian attribute of the noise based off how probability is calcualted
+                choice = random.random() * multiplier * (self.mu + self.stdEv * 4)#cont. from above: and we preserve the guassian attribute of the noise based off how probability is calcualted
             
             noise.append(choice)
         return noise
@@ -83,21 +86,34 @@ class Gaussian():
 
     def returnProbDensity(self, num):  #returns the prob of getting a value of equal to or less than the given value with the distribution parameters
         prob = 0
-        x = self.mu - self.stdEv * 4 
+        x = self.mu - self.stdEv * 4.0 
         while x < num:
-            prob += (self.evaluate(x) + self.evaluate(x + self.stepSize)) * self.stepSize * .5
+            prob += self.evaluate(x) * self.stepSize
             x += self.stepSize
+            self.stepSize = self.adaptStepSize(x)
         return prob
+
+    def adaptStepSize(self, num):   #calculates the local truncation error then calculates the new given step size for a certain tolerance
+        vel = self.evaluate(num)
+        eulerPos = vel * self.stepSize
+        eulerVel = self.evaluate(num + self.stepSize)
+        heunsVel = (eulerVel + vel) / 2
+        heunsPos = heunsVel * self.stepSize
+        time = 2 * (self.mu + self.stdEv * 3) / self.stepSize 
+        error = abs(heunsPos - eulerPos) +  time * abs(heunsVel - eulerVel)
+        newStepSize =  self.stepSize * math.sqrt(self.tolerance / (error + math.exp(-25)))
+        if self.stdEv > 1: #this just makes sure our step sizes dont go down too small and bring down computational time when they dont need to go that small
+            return max(.001, newStepSize)
+        else:
+            return max(.00001, newStepSize)
     
 if __name__ == "__main__":
-    guass = Gaussian(1) #test code below to make sure everything is working
-    print(guass.evaluate(1))
-    print(guass.evaluate(-10))
+    guass = Gaussian(.225) #test code below to make sure everything is working
+    print(guass.evaluate(.15))
+    print(guass.evaluate(-.15))
+    print(guass.tolerance)
     print(guass.generateNoise(15))
-    #guass.plotGaussian()
-    kernel = Matrix([[3,2,3], [2,4,2],[5,1,4]])
-    print(Gaussian.applyKernel(kernel, guass))
-    print(guass.returnProbDensity(-1))
-    print(guass.returnProbDensity(1))
-    print(guass.returnProbDensity(1) - guass.returnProbDensity(-1))
-    
+##    #guass.plotGaussian()
+##    kernel = Matrix([[3,2,3], [2,4,2],[5,1,4]])
+##    print(Gaussian.applyKernel(kernel, guass))
+    print(guass.returnProbDensity(.474) - guass.returnProbDensity(-.474))    
