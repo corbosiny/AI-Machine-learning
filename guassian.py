@@ -27,6 +27,7 @@ class Gaussian():
 
     def generateNoise(self, size):  #generates Guassian noise, so 68% of the noise will be within one standard deviation of the mean
         noise = []
+        self.stepSize = .001
         for i in range(size):       #fly wheel method of random choice
             beta = random.random() * self.evaluate(self.mu) * 2 #I start off with a very high(unreachable by any one number) probability
             multiplier = random.randint(-1, 1)
@@ -39,16 +40,22 @@ class Gaussian():
                 choice = random.random() * multiplier * (self.mu + self.stdEv * 4)#cont. from above: and we preserve the guassian attribute of the noise based off how probability is calcualted
             
             noise.append(choice)
+        self.stepSize = self.adaptStepSize(self.mu)
         return noise
 
     def calculateWeights(kernel, guass):                #still in progress, calculates weights for a weighted average when filtering
         scores = Matrix.zero(kernel.rows, kernel.columns)
         center = [int(kernel.rows / 2), int(kernel.columns / 2)]
+        total = 0
         for row in range(kernel.rows):
             for column in range(kernel.columns):
                 distance = math.sqrt(math.pow(row - center[0], 2) + math.pow(column - center[1], 2))
                 score = guass.evaluate(distance)
                 scores[row][column] = score
+                total += score
+        for row in range(kernel.rows):
+            for column in range(kernel.columns):
+                scores[row][column] /= total
         return scores
     
     def applyKernel(kernel, guass):                     #still in progress, applying a filter kernel to a matrix of pixels
@@ -63,13 +70,14 @@ class Gaussian():
         for row in range(scores.rows):
             for column in range(scores.columns):
                 total += scores[row][column] * kernel[row][column]
-        #total /= scores.rows * scores.columns
-        kernel[int(kernel.rows/2)][int(kernel.columns/2)] = total
         
-        return kernel[int(kernel.rows/2)][int(kernel.columns/2)]
+        return total
 
     def filter(pixels, kernelSize, guass):  #still in progress, goes over a set of pixels and applys a guassian filter to each pixel
-        pass
+        for num, x in enumerate(pixels):
+            kernel = Matrix.zero(kernelSize, kernelSize)
+            for y in range(kernelSize):
+                
         
     def plotGaussian(self, numPoints = 100): #used to plot and visualize the gaussian
         X = []
@@ -108,12 +116,26 @@ class Gaussian():
             return max(.00001, newStepSize)
     
 if __name__ == "__main__":
-    guass = Gaussian(.225) #test code below to make sure everything is working
-    print(guass.evaluate(.15))
-    print(guass.evaluate(-.15))
-    print(guass.tolerance)
-    print(guass.generateNoise(15))
+    guass = Gaussian(1) #test code below to make sure everything is working
+##    print(guass.evaluate(.15))
+##    print(guass.evaluate(-.15))
+##    print(guass.tolerance)
+##    print(guass.generateNoise(15))
 ##    #guass.plotGaussian()
-##    kernel = Matrix([[3,2,3], [2,4,2],[5,1,4]])
-##    print(Gaussian.applyKernel(kernel, guass))
-    print(guass.returnProbDensity(.474) - guass.returnProbDensity(-.474))    
+    kernel = Matrix([[1,1,1,2,1,1,1], [1,1,2,2,2,1,1],[1,1,1,2,1,1,1]])
+    print(Gaussian.applyKernel(kernel, guass))
+##    print(guass.returnProbDensity(.474) - guass.returnProbDensity(-.474))
+    im = Image.open('img.png')
+
+    pixels = list(im.getdata())
+    pixelsFlat = []
+    for x in pixels:
+        for y in x:
+            pixelsFlat.append(y)
+    print(pixelsFlat[1:5])
+    width, height = im.size
+    print(width, height)
+    pixelNum = 0
+    while pixelsFlat[pixelNum] == 0:
+        pixelNum += 1
+
