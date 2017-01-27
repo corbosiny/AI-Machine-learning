@@ -1,4 +1,5 @@
 import matrix
+from math import sqrt
 
 delta = [[-1,0],[0,1],[1, 0],[0,-1]]
 deltaMoves = ['^','>','v','<']
@@ -23,7 +24,7 @@ class Pather():
             start = self.start
         return self.valueMap(start, self.cost)
     
-    def valueMap(self, start = None, cost= 1):
+    def valueMap(self, start = None, cost= 1, index = 0, stopEarly = False):
         if start == None:
             start = self.goal
             
@@ -44,14 +45,14 @@ class Pather():
         expansionNum = 1
         while len(frontier) > 0:
             frontier.sort()
-            baseNode = frontier.pop(0)
+            baseNode = frontier.pop(index)
             x,y = baseNode[1:]
             for num, move in enumerate(delta):
                 x2 = x + move[0] 
                 y2 = y + move[1]
 
                 if (x2 < self.bounds[0] and x2 >= 0) and (y2 < self.bounds[1] and y2 >= 0):
-                    if self.explored[x2][y2] != ' ':
+                    if self.explored[x2][y2] == -1:
                         pass
                     else:
                         if isinstance(cost, int) or isinstance(cost, float):
@@ -59,42 +60,82 @@ class Pather():
                         elif isinstance(cost, list):
                             newCost = cost[num]
                         else:
-                            newCost = cost(x2, y2)
-                            
-                        frontier.append([baseNode[0] + newCost, x2, y2])
-                        self.explored[x2][y2] = baseNode[0] + newCost
-                        self.expanding[x2][y2] = expansionNum
-                        expansionNum += 1
-                        
+                            newCost = cost([x2, y2], self.goal) - baseNode[0]
+                        if isinstance(self.explored[x2][y2], str) or baseNode[0] + newCost < self.explored[x2][y2]:
+                            if x2 != self.goal[0] or y2 != self.goal[1]:
+                                frontier.append([baseNode[0] + newCost, x2, y2])
+                            self.explored[x2][y2] = baseNode[0] + newCost
+                            self.expanding[x2][y2] = expansionNum
+                            expansionNum += 1
+                        else:
+                            pass
+                if stopEarly and (x2 == self.goal[0] and y2 == self.goal[1]):
+                    return self.explored
             closed.append(baseNode)
 
         return self.explored
+
+
+    def search(self, start = None, stopE = True, indi = 0, newCost = 1):
+        if start == None:
+            start = self.start
+        values = self.valueMap(start, stopEarly = stopE, index = indi, cost= newCost)
+        currentNode = self.goal
+        while currentNode != self.start:
+            x,y = currentNode
+            bestMove, currentNode = self.bestMove(values, currentNode)
+            if bestMove == "NO PATH":
+                if x == self.goal[0] and y == self.goal[1]:
+                    values[start[0]][start[1]] = "X"
+                    return values
+                values = self.valueMap(start, stopEarly = stopE)
+                values[x][y] = 'X'
+                currentNode = self.goal
+            else:
+                values[currentNode[0]][currentNode[1]] = deltaMoves[(deltaMoves.index(bestMove) + 2) % len(deltaMoves)]
+        values[self.goal[0]][self.goal[1]] = '*'
+        bestMove, currentNode = self.bestMove(values, currentNode)
+        for i in range(values.rows):
+            for j in range(values.columns):
+                value = values[i][j]
+                if (isinstance(value, int) or isinstance(value, float)):
+                    if value > 0:
+                        values[i][j] = ' '
+                    else:
+                        values[i][j] = 1
+                  
+        return values
 
 
     def bestMove(self, values, currentNode):
         moves = []
         mins = []
         x,y = currentNode
-        if currentNode == self.goal:
-            return '*', [x,y]
         for num, move in enumerate(delta):
-            if x == 3 and y == 1:
-                print("Move: ", move)
             x2 = x + move[0]
             y2 = y + move[1]
             if x2 >= 0 and x2 < len(values) and y2 >= 0 and y2 < len(values[0]):
                 value = values[x2][y2]
-                if x == 3 and y == 1:
-                    print('Value: ', value)
                 if (isinstance(value, int) or isinstance(value, float)) and value >= 0:
                     mins.append(value)
                     moves.append(deltaMoves[num])
         if len(mins) == 0:
             return "NO PATH", None
         bestMove = moves[mins.index(min(mins))]
-        #values[x][y] = bestMove
         bestDelta = delta[deltaMoves.index(bestMove)]
         return bestMove, [x + bestDelta[0], y + bestDelta[1]]
+
+    def policyMap(self, indi = 0, newCost= 1):
+        
+        values = self.valueMap(self.goal, cost= newCost, index = indi)
+        values2 = values.makeCopy()
+     
+        for i in range(values.rows):
+            for j in range(values.columns):
+                if (isinstance(values[i][j], int) or isinstance(values[i][j], float)) and values[i][j] > 0:
+                    values2[i][j] = self.bestMove(values, [i,j])[0]
+        values2[self.goal[0]][self.goal[1]] = "*"
+        return values2
     
     def __str__(self):
         return str(self.board)
@@ -104,78 +145,78 @@ class BreadthFirst(Pather):
            if not isinstance(cost, int) and not isinstance(cost, float):
                raise ValueError('Cost function for breadth first search must be a uniform int')
            super(BreadthFirst, self).__init__(board, start, goal, cost)
-       
-       def search(self, start = None):
-           if start == None:
-               start = self.start
-           values = self.valueMap(self.goal)
-           currentNode = start
-           x,y = currentNode
-           while currentNode != self.goal and currentNode != None:
-               bestMove, currentNode = self.bestMove(values, currentNode)
-               if bestMove != 'NO PATH':
-                   values[x][y] = bestMove
-               else:
-                   values[x][y] = "X"
-               x,y = currentNode
-           values[x][y] = '*'
-           for i in range(values.rows):
-               for j in range(values.columns):
-                   if (i != self.goal[0] or j != self.goal[1]) and isinstance(values[i][j], int):
-                       if values[i][j] > 0:
-                           values[i][j] = ' '
-                   values[i][j]
-           return values
+
+       def find(self, stop = True):
+           return self.search(stopE = stop)
+
+       def pMap(self):
+           return self.policyMap()
         
-       def policyMap(self):
-           values = self.valueMap(self.goal)
-           values2 = values.makeCopy()
-           for i in range(values.rows):
-               for j in range(values.columns):
-                   if isinstance(values[i][j], int) and values[i][j] > 0:
-                       values2[i][j] = self.bestMove(values, [i,j])[0]
 
-           return values2
+class DepthFirst(Pather):
+    def __init__(self, board, start, goal, cost= 1):
+        if not isinstance(cost, int) and not isinstance(cost, float):
+            raise ValueError('Cost function for breadth first search must be a uniform int')
+        super(DepthFirst, self).__init__(board, start, goal, cost)
 
-##class DepthFirst(self, board, start, goal, cost= 1):
-##
-##  
-##  def __init__(self, board, start, goal, cost= 1):
-##       if not isinstance(cost, int) and not isinstance(cost, float):
-##           raise ValueError('Cost function for breadth first search must be a uniform int')
-##       super(BreadthFirst, self).__init__(board, start, goal, cost)
-##
-##  def search(self):
-##      pass
-##
-##  def policyMap(self):
-##      pass
+    def find(self, stop = True):
+        return self.search(stopE = stop, indi = -1)
+
+    def pMap(self):
+        return self.policyMap(-1)
         
-##class A*(Pather):
-##
-##    def __init__(self, board, start, goal, cost= 1):
-##         if not callable(obj):
-##             raise ValueError('Cost function for A* must be a heuristic function')
-##         super(BreadthFirst, self).__init__(board, start, goal, cost)
-##
-##    def search():
-##      pass
-##
-##    def policyMap(self):
-##      pass
+class Astar(Pather):
+
+    def __init__(self, board, start, goal, cost):
+         if not callable(cost):
+             raise ValueError('Cost function for A* must be a heuristic function')
+         super(Astar, self).__init__(board, start, goal, cost)
+
+    def find(self, stop = True):
+        cost = self.cost
+        return self.search(stopE = stop, newCost = cost)
+
+    def pMap(self):
+        cost = self.cost
+        return self.policyMap(newCost = cost)
 
 
+def costEstimate(location, goal):
+    return int(sqrt(sum([pow(x - y, 2) for x,y in zip(location, goal)])))
+    
 if __name__ == "__main__":
-    maze = matrix.Matrix([[0,1,1,1],[0,1,0,1],[0,0,0,0],[0,0,1,0]])
+    maze = matrix.Matrix([[0,1,0,0,1],[0,1,0,0,1],[0,0,0,0,1],[0,0,1,0,0], [0,1,1,0,0],[0,0,0,0,1]])
     start = [0,0]
-    goal = [len(maze) - 1, len(maze[0]) - 1]
+    goal = [3, 3]
     pather = BreadthFirst(maze, start, goal)
+    pather2 = DepthFirst(maze, start, goal)
+    pather3 = Astar(maze,start,goal, costEstimate)
+    print("Maze:")
     print(maze)
     print()
-    print(pather.expandedMap(start))
+    #print(pather.expandedMap(start))
+    print("--------------------")
+    #print(pather.valueMap())
+    print('\nBreadth First:')
+    print(pather.find())
     print()
-    print(pather.valueMap())
+    print(pather.find(False))
     print()
-    print(pather.search())
+    print(pather.pMap())
+    print('\nDepth First:')
+    print(pather2.find())
     print()
-    print(pather.policyMap())
+    print(pather2.find(False))
+    print()
+    print(pather2.pMap())
+    print("\nA*:")
+    print()
+    print(pather3.find())
+    print()
+    print(pather3.find(False))
+    print()
+    print(pather3.pMap())
+    print()
+    print(pather3.valueMap(start, cost= costEstimate, stopEarly = True))
+    print()
+    print(pather3.expandedMap())
