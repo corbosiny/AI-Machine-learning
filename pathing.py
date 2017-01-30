@@ -1,16 +1,17 @@
 import matrix
 from math import sqrt
 
-delta = [[-1,0],[0,1],[1, 0],[0,-1]]
-deltaMoves = ['^','>','v','<']
+delta = [[-1,0],[0,1],[1, 0],[0,-1]]        #movements through the maze
+deltaMoves = ['^','>','v','<']              #symbols of each movement for relaying path to user
 
 class Pather():
 
-    def __init__(self, board, start, goal, cost= 1):
+    def __init__(self, board, start, goal, cost= 1, realMaze = None):
         self.board = board
         self.start = start
         self.goal = goal
         self.cost = cost
+        self.realMaze = realMaze
         self.bounds = [len(self.board), len(self.board[0])]
 
     def expandedMap(self, start = None):
@@ -29,7 +30,6 @@ class Pather():
             start = self.goal
             
         self.explored = self.board.makeCopy()
-        
         
         for i in range(self.explored.rows):
             for j in range(self.explored.columns):
@@ -52,6 +52,11 @@ class Pather():
                 y2 = y + move[1]
 
                 if (x2 < self.bounds[0] and x2 >= 0) and (y2 < self.bounds[1] and y2 >= 0):
+                    if self.realMaze and self.realMaze[x2][y2] == 1:
+                        self.board[x2][y2] = -1
+                        self.explored[x2][y2] = -1
+                        self.expanding[x2][y2] = -1
+                        
                     if self.explored[x2][y2] == -1:
                         pass
                     else:
@@ -60,7 +65,7 @@ class Pather():
                         elif isinstance(cost, list):
                             newCost = cost[num]
                         else:
-                            newCost = cost([x2, y2], self.goal) - baseNode[0]
+                            newCost = cost([x2, y2], self.goal)
                         if isinstance(self.explored[x2][y2], str) or baseNode[0] + newCost < self.explored[x2][y2]:
                             if x2 != self.goal[0] or y2 != self.goal[1]:
                                 frontier.append([baseNode[0] + newCost, x2, y2])
@@ -79,7 +84,10 @@ class Pather():
     def search(self, start = None, stopE = True, indi = 0, newCost = 1):
         if start == None:
             start = self.start
+        
         values = self.valueMap(start, stopEarly = stopE, index = indi, cost= newCost)
+        print(values)
+        print()
         currentNode = self.goal
         while currentNode != self.start:
             x,y = currentNode
@@ -103,6 +111,8 @@ class Pather():
                         values[i][j] = ' '
                     else:
                         values[i][j] = 1
+                elif value == 'X':
+                    values[i][j] = ' '
                   
         return values
 
@@ -141,10 +151,10 @@ class Pather():
         return str(self.board)
     
 class BreadthFirst(Pather):
-       def __init__(self, board, start, goal, cost= 1):
+       def __init__(self, board, start, goal, cost= 1, realMaze = None):
            if not isinstance(cost, int) and not isinstance(cost, float):
                raise ValueError('Cost function for breadth first search must be a uniform int')
-           super(BreadthFirst, self).__init__(board, start, goal, cost)
+           super(BreadthFirst, self).__init__(board, start, goal, cost, realMaze)
 
        def find(self, stop = True):
            return self.search(stopE = stop)
@@ -154,10 +164,10 @@ class BreadthFirst(Pather):
         
 
 class DepthFirst(Pather):
-    def __init__(self, board, start, goal, cost= 1):
+    def __init__(self, board, start, goal, cost= 1, realMaze = None):
         if not isinstance(cost, int) and not isinstance(cost, float):
             raise ValueError('Cost function for breadth first search must be a uniform int')
-        super(DepthFirst, self).__init__(board, start, goal, cost)
+        super(DepthFirst, self).__init__(board, start, goal, cost, realMaze)
 
     def find(self, stop = True):
         return self.search(stopE = stop, indi = -1)
@@ -167,10 +177,10 @@ class DepthFirst(Pather):
         
 class Astar(Pather):
 
-    def __init__(self, board, start, goal, cost):
+    def __init__(self, board, start, goal, cost, realMaze = None):
          if not callable(cost):
              raise ValueError('Cost function for A* must be a heuristic function')
-         super(Astar, self).__init__(board, start, goal, cost)
+         super(Astar, self).__init__(board, start, goal, cost, realMaze)
 
     def find(self, stop = True):
         cost = self.cost
@@ -185,38 +195,44 @@ def costEstimate(location, goal):
     return int(sqrt(sum([pow(x - y, 2) for x,y in zip(location, goal)])))
     
 if __name__ == "__main__":
-    maze = matrix.Matrix([[0,1,0,0,1],[0,1,0,0,1],[0,0,0,0,1],[0,0,1,0,0], [0,1,1,0,0],[0,0,0,0,1]])
+##    maze = matrix.Matrix([[0,1,0,0,1],[0,1,0,0,1],[0,0,0,0,1],[0,0,1,0,0], [0,1,1,0,0],[0,0,0,0,1]])
+##    start = [0,0]
+##    goal = [3, 3]
+##    pather = BreadthFirst(maze, start, goal)
+##    pather2 = DepthFirst(maze, start, goal)
+##    pather3 = Astar(maze,start,goal, costEstimate)
+##    print("Maze:")
+##    print(maze)
+##    print()
+##    #print(pather.expandedMap(start))
+##    print("--------------------")
+##    #print(pather.valueMap())
+##    print('\nBreadth First:')
+##    print(pather.find())
+##    print()
+##    print(pather.find(False))
+##    print()
+##    print(pather.pMap())
+##    print('\nDepth First:')
+##    print(pather2.find())
+##    print()
+##    print(pather2.find(False))
+##    print()
+##    print(pather2.pMap())
+##    print("\nA*:")
+##    print()
+##    print(pather3.find())
+##    print()
+##    print(pather3.find(False))
+##    print()
+##    print(pather3.pMap())
+##    print()
+    maze = matrix.Matrix([[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]])
+    realMaze = matrix.Matrix([[0,0,1,0,0],[0,0,1,0,0],[0,1,1,0,0],[0,0,0,0,0],[0,0,0,0,0]])
     start = [0,0]
-    goal = [3, 3]
-    pather = BreadthFirst(maze, start, goal)
-    pather2 = DepthFirst(maze, start, goal)
-    pather3 = Astar(maze,start,goal, costEstimate)
-    print("Maze:")
-    print(maze)
-    print()
-    #print(pather.expandedMap(start))
-    print("--------------------")
-    #print(pather.valueMap())
-    print('\nBreadth First:')
+    goal = [0,4]
+    pather = Astar(maze, start, goal, costEstimate, realMaze)
     print(pather.find())
     print()
-    print(pather.find(False))
-    print()
-    print(pather.pMap())
-    print('\nDepth First:')
-    print(pather2.find())
-    print()
-    print(pather2.find(False))
-    print()
-    print(pather2.pMap())
-    print("\nA*:")
-    print()
-    print(pather3.find())
-    print()
-    print(pather3.find(False))
-    print()
-    print(pather3.pMap())
-    print()
-    print(pather3.valueMap(start, cost= costEstimate, stopEarly = True))
-    print()
-    print(pather3.expandedMap())
+    print(pather.expandedMap())
+    
