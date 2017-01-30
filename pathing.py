@@ -47,6 +47,9 @@ class Pather():
             frontier.sort()
             baseNode = frontier.pop(index)
             x,y = baseNode[1:]
+            if callable(cost) and [x,y] != self.start:
+                baseNode[0] -= cost([x,y], self.goal)
+                self.explored[x][y] = baseNode[0]
             for num, move in enumerate(delta):
                 x2 = x + move[0] 
                 y2 = y + move[1]
@@ -65,7 +68,7 @@ class Pather():
                         elif isinstance(cost, list):
                             newCost = cost[num]
                         else:
-                            newCost = cost([x2, y2], self.goal)
+                            newCost = cost([x2, y2], self.goal) + 1
                         if isinstance(self.explored[x2][y2], str) or baseNode[0] + newCost < self.explored[x2][y2]:
                             if x2 != self.goal[0] or y2 != self.goal[1]:
                                 frontier.append([baseNode[0] + newCost, x2, y2])
