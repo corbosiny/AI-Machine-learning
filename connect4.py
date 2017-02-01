@@ -1,9 +1,10 @@
 import sys          #just used for the .exc_info() function for reading our error messages
+from matrix import Matrix
 
 class Connect4Game():
 
     def __init__(self):
-        self.board = [['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-']]
+        self.board = Matrix([['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-'],['-', '-', '-', '-', '-', '-']])
         self.playerSymbols = ['X','O']                          
         self.turn = 0                                                           #used for the AI players to tell if it is their turn
         self.winner = None                                                      #once this is set, the game is over, also it holds the result of the match
@@ -16,11 +17,11 @@ class Connect4Game():
             raise ValueError('Invalid move: %d by player %d' % (column, self.turn))
         self.numMoves += 1                                                                  #keeping track of moves, incase of a draw scenario
         openCol = False                                                                     #used to check if the column is too full to play, will be set true if an open row is found
-        for row in list(reversed(self.board)):                                              #here we both check if the column is open and what row the piece would fall in
+        for i, row in enumerate(list(reversed(self.board))):                                              #here we both check if the column is open and what row the piece would fall in
             if row[column] == '-':
                 openCol = True
                 row[column] = self.playerSymbols[self.turn]                                 #updating the board
-                row = self.board.index(row)                                                 #keeping track of the row for when we check if that move won the game
+                row = 5 - i                                              #keeping track of the row for when we check if that move won the game
                 break
             
         if not openCol:                                                                     #if the column is full, raise an error
@@ -116,15 +117,10 @@ class Connect4Game():
         return False
     
     def __str__(self):          #just how the board prints itself, one row at a time then a new line, then numbers under each column that start at 1 not zero for easy of testing 
-        boardStr = "\n"
-        for row in self.board:
-            for x in row:
-                boardStr += x
-                boardStr += ' '
-            boardStr += '\n'
-        for x in range(1, 7):
-            boardStr += str(x)
-            boardStr += str(" ")
+        boardStr = str(self.board)
+        boardStr += '\n'
+        for x in range(1,7):
+            boardStr += " " + str(x) + "  "
         return boardStr
     
 if __name__ == "__main__":              #simple test code for playing the game hotseat or with yourself to test it
