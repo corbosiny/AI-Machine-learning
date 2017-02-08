@@ -63,7 +63,7 @@ class gradientDescent():
             
         return inputs
 
-    def calcCost(self, inputs, output, derivative = False):
+    def calcCost(self, inputs, output, derivative = False, num = None):
         expected = 0
         for i, weight in enumerate(self.weights):
             expected += weight * inputs[i]
@@ -71,7 +71,7 @@ class gradientDescent():
         if not derivative:
             return .5 * ((expected - output) ** 2)
         else:
-            return (expected - output) * inputs[i]
+            return (expected - output) * inputs[num]
         
     def calcAverageError(self, data = None):
         total = 0.0
@@ -89,7 +89,7 @@ class gradientDescent():
         for i in range(len(self.weights)):
             total = 0.0
             for dataPoint in self.trainingData:
-                total += self.calcCost(dataPoint[0], dataPoint[1], True)     
+                total += self.calcCost(dataPoint[0], dataPoint[1], True, i)     
                 #print(total)
             total = total / len(self.trainingData)
             tempWeights.append(self.weights[i] - self.alpha * total)
@@ -127,8 +127,8 @@ if __name__ == "__main__":
     trainingData = [[[1,4], 110],[[1,5], 135],[[1,6], 160],[[1,7], 185],[[1,8], 210]]
     weights = [-5,-8]
     
-    grad = gradientDescent(trainingData, weights, .001, True, 3)
-    print(grad.fit(400000))
+    grad = gradientDescent(trainingData, weights, .1, True, 3)
+    print(grad.fit(50000))
     print()
     for i in range(len(trainingData)):
         print(grad.inputs[i])
