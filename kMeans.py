@@ -63,6 +63,24 @@ class KMeans():
             
         return nearest
 
+    def predict(self, testData):
+        if isinstance(testData[0], list):
+            predictions = []
+            for point in testData:
+                predictions.append(self.predictDataPoint(point))
+            return predictions
+        else:
+            return self.predictDataPoint(testData)
+            
+
+    def predictDataPoint(self, point):
+        distances = []
+        for mean in self.means:
+            distances.append(distance.euclidean(mean, point))
+
+        clusterIndex = distances.index(min(distances))
+        return 'Cluster: %d' % clusterIndex
+
     def fit(self):
         nearest = self.calcNearest()
         self.displayData(nearest)
@@ -77,7 +95,8 @@ class KMeans():
                     try:
                         average = sum(total) / len(total)
                     except:
-                        average = random.randrange(self.ranges[num][0], self.ranges[num][1])
+                        print(self.ranges)
+                        average = random.randrange(self.ranges[param][0], self.ranges[param][1])
                         average -= random.random()
                     #print(average)
                     averages[num].append(average)
@@ -98,3 +117,4 @@ if __name__ == "__main__":
     means = KMeans(fakeData, 3)
     means.fit()
     means.displayData()
+    print(means.predict([0,0]))
