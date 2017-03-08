@@ -44,6 +44,7 @@ class KalmanFilter():
         
 
 if __name__ == "__main__":
+    ##test code below here, feel free to comment out or replace when using the code:
     timeStep = 1
 ##    stateMatrix = Matrix([[0],[0]])
 ##    stateErrors = Matrix([[1000, 0], [0, 1000]])
