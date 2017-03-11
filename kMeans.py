@@ -2,6 +2,8 @@ import random
 from scipy.spatial import distance
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.cross_validation import train_test_split
 
 class KMeans():
 
@@ -18,7 +20,7 @@ class KMeans():
         for x in range(numMeans):
             vals = []
             for y in range(len(self.ranges)):
-                vals.append(random.randrange(self.ranges[y][0], self.ranges[y][1]))
+                vals.append(random.randrange(int(self.ranges[y][0]), int(self.ranges[y][1])))
                 vals[y] -= random.random() * 2
                 if vals[y] < self.ranges[y][0]:
                     vals[y] = abs(vals[y]) 
@@ -27,11 +29,14 @@ class KMeans():
 
         self.splitData = []        
         for x in range(len(data[0])):
-            self.splitData.append([y[x] for y in self.data + self.means])
+            self.splitData.append([y[x] for y in self.data])
 
     def displayData(self, nearest= None):
         if nearest == None:
             nearest = self.calcNearest()
+
+        fig1 = plt.figure()
+        ax1 = fig1.add_subplot(111, projection='3d')
         for cluster in nearest:
 
             parameters = [[] for i in range(len(self.ranges))]
@@ -44,8 +49,11 @@ class KMeans():
             except:
                 clusterColor = KMeans.randomColor()
 
-            plt.scatter(parameters[0], parameters[1], color= clusterColor, label= "Cluster %d" % nearest.index(cluster))
-            plt.scatter(self.means[nearest.index(cluster)][0], self.means[nearest.index(cluster)][1], color= clusterColor, marker= "x", label= "Mean %d" % nearest.index(cluster))
+            
+            ax1.scatter(parameters[0], parameters[1], parameters[2], color= clusterColor, label= "Cluster %d" % nearest.index(cluster))
+            ax1.scatter(self.means[nearest.index(cluster)][0], self.means[nearest.index(cluster)][1], self.means[nearest.index(cluster)][2], color= clusterColor, marker= "x", label= "Mean %d" % nearest.index(cluster))
+           #plt.scatter(parameters[0], parameters[1], color= clusterColor, label= "Cluster %d" % nearest.index(cluster))
+           #plt.scatter(self.means[nearest.index(cluster)][0], self.means[nearest.index(cluster)][1], color= clusterColor, marker= "x", label= "Mean %d" % nearest.index(cluster))
         plt.legend(loc='upper left', shadow=True)
         plt.show()
 
@@ -83,9 +91,9 @@ class KMeans():
 
     def fit(self):
         nearest = self.calcNearest()
-        self.displayData(nearest)
+        #self.displayData(nearest)
         self.change = False
-        while True:
+        for y in range(500):
             self.change = False
             averages = [[] for i in range(len(nearest))]
             for num, cluster in enumerate(nearest):
@@ -95,8 +103,7 @@ class KMeans():
                     try:
                         average = sum(total) / len(total)
                     except:
-                        print(self.ranges)
-                        average = random.randrange(self.ranges[param][0], self.ranges[param][1])
+                        average = random.randrange(int(self.ranges[param][0]), int(self.ranges[param][1]))
                         average -= random.random()
                     #print(average)
                     averages[num].append(average)
@@ -113,8 +120,11 @@ class KMeans():
                 return
 
 if __name__ == "__main__":
-    fakeData = [[5,5],[0,1],[5,7],[6,5],[6,4], [0,0], [1,1], [2,1.5], [2,4], [2.5,4], [2.2,3.6]]
-    means = KMeans(fakeData, 3)
+    #fakeData = [[5,5],[0,1],[5,7],[6,5],[6,4], [0,0], [1,1], [2,1.5], [2,4], [2.5,4], [2.2,3.6]]
+    #means = KMeans(fakeData, 3)
+    irisData = datasets.load_iris()
+    Xset,Xtest, Yset, Ytest = train_test_split(irisData.data, irisData.target, test_size = .10)
+    means = KMeans(Xset)
     means.fit()
     means.displayData()
-    print(means.predict([0,0]))
+    #print(means.predict([0,0]))
