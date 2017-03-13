@@ -46,15 +46,15 @@ class KMeans():
             
             for j in range(len(self.data)):             #feature scaling the data point feature
                 try:
-                    self.data[j][i] = (self.data[j][i] - rang[0]) / rang[1]
+                    self.data[j][i] = (self.data[j][i] - rang[0]) / (rang[1] - rang[0])
                 except ZeroDivisionError:
-                    self.data[j][i] = 0
+                    self.data[j][i] = self.ranges[i][0]
                     
             for j in range(self.numMeans):              #feature scaling the means
                 try:
-                    self.means[j][i] = (self.means[j][i] - rang[0]) / rang[1]
+                    self.means[j][i] = (self.means[j][i] - rang[0]) / (rang[1] - rang[0])
                 except ZeroDivisionError:
-                    self.means[j][i] = 0
+                    self.means[j][i] = self.ranges[i][0]
 
         
     def displayData(self, nearest= None):       #graphs all the data
@@ -116,12 +116,29 @@ class KMeans():
 
     def predictDataPoint(self, point):      #finds closest mean, returns that cluser number
         distances = []
+        
+        if self.featureScaling:         #if feature scaling has been done, we have to feature scale the test inputs as well
+            for i in range(len(point)):
+                try:
+                    point[i] = (point[i] - self.ranges[i][0]) / (self.ranges[i][1] - self.ranges[i][0])
+                except ZeroDivisionError:
+                    point[i] = self.ranges[i][0]
+                    
         for mean in self.means:
             distances.append(distance.euclidean(mean, point))
 
         clusterIndex = distances.index(min(distances))
-        return 'Cluster: %d' % clusterIndex
+        return clusterIndex
 
+
+    def testScore(self, testData, answers):         #for testing the accuracy of the classifier
+        guesses = self.predict()
+        total = 0
+        for guess, answer in zip(guesses, answers):
+            if guess == answer:
+                total += 1
+                
+        return total / float(len(answers))
 
 
     def fit(self, numLoops = 100):          #runs through fitting the clusters
@@ -153,11 +170,16 @@ class KMeans():
 
 ###Test Code Below Here###
 if __name__ == "__main__":
-    #fakeData = [[5,5],[0,1],[5,7],[6,5],[6,4], [0,0], [1,1], [2,1.5], [2,4], [2.5,4], [2.2,3.6]]
-    #means = KMeans(fakeData, 3)
-    irisData = datasets.load_iris()
-    Xset,Xtest, Yset, Ytest = train_test_split(irisData.data, irisData.target, test_size = .20)
-    means = KMeans(Xset, 3, featureScaling = True)
-    means.fit()
+    fakeData = []
+    for i in range(3):
+        for j in range(15):
+            dataPoint = []
+            for k in range(3):
+                dataPoint.append(round(i * 6 + random.random() * 2, 2))
+            fakeData.append(dataPoint)
+            
+    means = KMeans(fakeData, 3, featureScaling = True)
+    means.fit(1000)
+    fakeTestData = [[1,1,1],[4,5,6],[12,7,11],[0,-1,2],[10,9,8],[7,16,12],[7,6,5]]
+    print(means.predict(fakeTestData))
     means.displayData()
-    #print(means.predict([0,0]))
