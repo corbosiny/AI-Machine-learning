@@ -11,17 +11,20 @@ from sklearn.cross_validation import train_test_split
 class KMeans():
 
     colors = ['blue', 'red', 'black', 'green', 'yellow' , 'cyan', 'orange', 'purple'] #order of colors that will be assigned to the clusters, if more than this random colors will be assigned
-    def __init__(self, data, labels, allLabels = None, numMeans = 2, featureScaling = False):
+    def __init__(self, data, labels = None, allLabels = None, numMeans = 2, featureScaling = False):
         self.data = data
+
         self.labels = labels
-        if allLabels:
-            self.allLabels = allLabels
-        else:
-            allLabels = []
-            for label in self.labels:
-                if label not in allLabels:
-                    allLabels.append(label)
-            self.allLabels = allLabels
+        if labels:
+            if allLabels:
+                self.allLabels = allLabels
+            else:
+                allLabels = []
+                for label in self.labels:
+                    if label not in allLabels:
+                        allLabels.append(label)
+                self.allLabels = allLabels
+                
         self.numMeans = numMeans
         self.featureScaling = featureScaling
         self.ranges = []
@@ -71,7 +74,7 @@ class KMeans():
         
     def displayData(self, nearest= None, clusterLabels = None):       #graphs all the data
         if nearest == None:                     #neads the data split into clusters, if not provided it will calculate them
-            nearest, clusterLabels = self.calcNearest()
+            nearest = self.calcNearest()
 
         if len(self.ranges) > 2:                #setup up for 3D graphs if the number of dimensions is greater than 2         
             fig1 = plt.figure()
@@ -90,12 +93,18 @@ class KMeans():
                 clusterColor = KMeans.randomColor()
                 
             if len(self.ranges) > 2:        #if doing 3D graphs then we use the ax1 object we set up
-                ax1.scatter(parameters[0], parameters[1], parameters[2], color= clusterColor, label= clusterLabels[i])
+                if self.labels:
+                    ax1.scatter(parameters[0], parameters[1], parameters[2], color= clusterColor, label= self.clusterLabels[i])
+                else:
+                    ax1.scatter(parameters[0], parameters[1], parameters[2], color= clusterColor, label= "Cluster %d" % nearest.index(cluster))
                 ax1.scatter(self.means[nearest.index(cluster)][0], self.means[nearest.index(cluster)][1], self.means[nearest.index(cluster)][2], color= clusterColor, marker= "x", label= "Mean %d" % nearest.index(cluster))
             else:                           #otherwise we do a 2D scatter plot
-                plt.scatter(parameters[0], parameters[1], color= clusterColor, label= clusterLabels[i])
+                if self.labels:
+                    plt.scatter(parameters[0], parameters[1], color= clusterColor, label= self.clusterLabels[i])
+                else:
+                    plt.scatter(parameters[0], parameters[1], color= clusterColor, label= "Cluster %d" % nearest.index(cluster))
                 plt.scatter(self.means[nearest.index(cluster)][0], self.means[nearest.index(cluster)][1], color= clusterColor, marker= "x", label= "Mean %d" % nearest.index(cluster))
-
+                
         plt.legend(loc='upper left', shadow=True)
         plt.show()
 
@@ -114,14 +123,16 @@ class KMeans():
                 
             minDistance = min(distances)
             nearest[distances.index(minDistance)].append(point) #appending this data point to the cluster list of the closest mean
-            nearestLabels[distances.index(minDistance)].append(self.labels[i])
-    
-        self.clusterLabels = []
-        for cluster in range(self.numMeans):
-            labelCount = [nearestLabels[cluster].count(label) for label in self.allLabels]
-            self.clusterLabels.append(self.allLabels[labelCount.index(max(labelCount))])
+            if self.labels:
+                nearestLabels[distances.index(minDistance)].append(self.labels[i])
+
+        if self.labels:
+            self.clusterLabels = []
+            for cluster in range(self.numMeans):
+                labelCount = [nearestLabels[cluster].count(label) for label in self.allLabels]
+                self.clusterLabels.append(self.allLabels[labelCount.index(max(labelCount))])
                 
-        return nearest, self.clusterLabels
+        return nearest
 
     def predict(self, testData):            #makes group predictions if list is put in
         if isinstance(testData[0], list):
@@ -162,7 +173,7 @@ class KMeans():
 
 
     def fit(self, numLoops = 100):          #runs through fitting the clusters
-        nearest, clusterLabels = self.calcNearest()
+        nearest = self.calcNearest()
         self.change = False
         
         for y in range(numLoops):
@@ -182,7 +193,7 @@ class KMeans():
                 self.means[i][1] = averages[i][1] + 0
                 
             #input('>>')
-            nearest, clusterLabels = self.calcNearest()    #updating nearest
+            nearest = self.calcNearest()    #updating nearest
             #self.displayData(nearest)
             if not self.change:
                 return
