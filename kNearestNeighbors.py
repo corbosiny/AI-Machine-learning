@@ -3,44 +3,46 @@ from sklearn import datasets
 from sklearn.cross_validation import train_test_split
 from scipy.spatial import distance
 
+
+#classifies an object by the labels of its nearest datapoints
 class KNearestNeighbors():
 
-    def __init__(self, data, labels, allLabels, k): #needs its training set and labels, then a list of all possible labels, and the number of neighbours
+    def __init__(self, data, labels, allLabels, k= 3): #needs a set of datapoints, their labels, all the possible lavels, and how many neighbors to search for **note** k should be odd to avoid ties
         self.data = data
         self.labels = labels
         self.allLabels = allLabels
         self.k = k
         
-    def classify(self, newMember):      #returns a prediction of what the new member should be classified as
+    def classify(self, newMember): 
         distances = []
-        neighbors = []
+        neighbors = [] 
         for x in self.data:
-            distances.append(distance.euclidean(x, newMember)) #essentially sums the difference squared between each attriubte of newMember and existing member in the data
+            distances.append(distance.euclidean(x, newMember)) #finding all the distances
 
         tempLabels = []
-        nieghbors = []  #creates a temporary list of all the training set, so we can manipulate it without changing the actual set
+        nieghbors = []
         for label in self.labels:
-            tempLabels.append(label)
+            tempLabels.append(label) #making a temp array to hold all of our data labels so that we can remove some when finding nearest neighbors
             
-        for y in range(self.k): #find the nearest neighbor, then remove him from the list and keep track of what his classification is
-            minIndex = distances.index(min(distances))
-            neighbors.append(tempLabels[minIndex])
-            tempLabels.pop(minIndex)
+        for y in range(self.k):                         #finding as many nearest neighbors as specified
+            minIndex = distances.index(min(distances))  
+            neighbors.append(tempLabels[minIndex])      #adding on the label of the nearest neighbor
+            tempLabels.pop(minIndex)                    #removing that data point
             distances.pop(minIndex)
 
-        counts = [] #here we count how many times he each label appears in the closest neighbors, the one with the most counts wins
-        for label in self.allLabels:
+        counts = []                                     
+        for label in self.allLabels:                    #going through each label and making an array that holds a list of the frequencies
             counts.append(neighbors.count(label))
-        classification = self.allLabels[counts.index(max(counts))]
+        classification = self.allLabels[counts.index(max(counts))] #returning the most frequent label
         return classification
     
-    def classifyGroup(self, group): #essentially predicts classifications for a whole group of data, passes each one through the classify function
+    def classifyGroup(self, group):         #takes a list of points, classifies them and returns an array of the classification
         classifications = []
         for member in group:
             classifications.append(self.classify(member))
         return classifications
     
-    def scoreTest(self, group, answers):   #classifies a group then checks its scores against the answers, used for testing
+    def scoreTest(self, group, answers):        #test the accuracy of the classifier, takes in a group of points, classifies them, checks that against the answers
         guesses = self.classifyGroup(group)
         score = 0
         for i, guess in enumerate(guesses):
@@ -50,12 +52,12 @@ class KNearestNeighbors():
         return score / float(len(guesses))
 
 
+###just test code below###
 if __name__ == "__main__":
-    #below is just test code
-    irisData = datasets.load_iris() #load in the iris data set
-    Xset,Xtest, Yset, Ytest = train_test_split(irisData.data, irisData.target, test_size = .75) #split it into a training set plus labels and a testing set plus labels
+    irisData = datasets.load_iris()
+    Xset,Xtest, Yset, Ytest = train_test_split(irisData.data, irisData.target, test_size = .75)
     labels = []
-    for y in Yset: #here we calculate all possible classifications
+    for y in Yset:
         if y not in labels:
             labels.append(y)
     clf = KNearestNeighbors(Xset, Yset, labels, 5)
