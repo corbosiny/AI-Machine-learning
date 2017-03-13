@@ -43,52 +43,48 @@ class KalmanFilter():
         self.updateCovariance()
         
 
+###test code below here, feel free to comment out or replace when using the code###
 if __name__ == "__main__":
-    ##test code below here, feel free to comment out or replace when using the code:
+    ##linear motion model with outside acceleration
+    #NOTE: the external motion matrices are not necessary
     timeStep = 1
-##    stateMatrix = Matrix([[0],[0]])
-##    stateErrors = Matrix([[1000, 0], [0, 1000]])
-##    transitionMatrix = Matrix([[1, timeStep],[0, 1]])
-##    measureMatrix = Matrix([[1, 0]])
-##    measureErrors = Matrix([[1]])
-##    externalTransition = Matrix([[.5 * math.pow(timeStep, 2)], [timeStep]])
-##    externalMotion = Matrix([[0]])
-    stateMatrix = Matrix([[1],[0]])
-    stateErrors = Matrix([[100, 0], [0, 100]])
-    transitionMatrix = Matrix([[1, timeStep],[0, 1]])
-    measureMatrix = Matrix([[1, 0]])
-    measureErrors = Matrix([[100]])
-    externalTransition = Matrix([[.5 * math.pow(timeStep, 2)], [timeStep]])
-    externalMotion = Matrix([[1]])
+    stateMatrix = Matrix([[1],[0]]) #initial esimates: position of one, velocitiy of zero
+    stateErrors = Matrix([[100, 0], [0, 100]]) #initial uncertanties and co-uncertanties of our estimates
+    transitionMatrix = Matrix([[1, timeStep],[0, 1]]) #first row is old position + velocity times timestep
+    measureMatrix = Matrix([[1, 0]])   #only measures position
+    measureErrors = Matrix([[100]])    #uncertanties of sensor
+    externalTransition = Matrix([[.5 * math.pow(timeStep, 2)], [timeStep]]) #first line is how the acceleration effects the position, second is how the acceleration effects velocity
+    externalMotion = Matrix([[1]])  #an acceleration of 1
     
-    fil = KalmanFilter(stateMatrix, stateErrors, transitionMatrix, measureMatrix, measureErrors, externalTransition, externalMotion)
-    print(stateMatrix)
+    fil = KalmanFilter(stateMatrix, stateErrors, transitionMatrix, measureMatrix, measureErrors, externalTransition, externalMotion) #starting the kalman filter
+    print(stateMatrix) #printing our initial states
     print(stateErrors)
     print('-' * 20)
     print('\n')
-    sensorNoiseMag = 5
-    actualStates = [1 + .5 * math.pow(x, 2) for x in range(1, 20)]
+    
+    sensorNoiseMag = 5  #adding in fake noise to our sensor up to a maximmum of 5
+    actualStates = [1 + .5 * math.pow(x, 2) for x in range(1, 20)] #making a fake set of "real states" to compare our filter with
     states = []
-    #measurements = [[1],[2],[3]]
-    measurements = [1 + .5 * math.pow(x, 2) + random.randint(-sensorNoiseMag, sensorNoiseMag) * random.random() for x in range(1, 20)]
-    for measurement in measurements:
-        fil.updateEstimate([measurement])
-        states.append(fil.stateMatrix[0][0])
-        print('Post measurment: ')
-        print(fil.stateMatrix)
+    measurements = [1 + .5 * math.pow(x, 2) + random.randint(-sensorNoiseMag, sensorNoiseMag) * random.random() for x in range(1, 20)] #simulating an array of measurments
+    for measurement in measurements: #updating the filter for each measurement
+        fil.updateEstimate([measurement]) #updating the state based off of a measurement
+        states.append(fil.stateMatrix[0][0])    #appending the guess of the kalman filter of the state
+        print('Post measurment: ')              
+        print(fil.stateMatrix)                  #printing out our state estimates
         print()
-        fil.updateState(timeStep)
+        fil.updateState(timeStep)               #updating our state estimate based off of a time step
         print('Post new state Estimate: ')
-        print(fil.stateMatrix)
+        print(fil.stateMatrix)                  #printing our state guess after the time step
         print('\n')
         print('-' * 20)
         print('\n')
-        #states.append(fil.stateMatrix[0][0])
-    print(fil.stateErrors)
-    print()
-    print(actualStates[-1])
-    time = [x for x in range(0, 19)]
-    plt.plot(time, measurements, label= "measured states")
+        
+    print(fil.stateErrors) #printing the final uncertanties
+    print() 
+    print(actualStates[-1]) #printing the final real state
+    
+    time = [x for x in range(0, 19)] #making a time variable for plotting
+    plt.plot(time, measurements, label= "measured states") #plotting the "actual state", estimated state, and measurements to compare them
     plt.plot(time, actualStates, label= "actual state")
     plt.plot(time, states, label= "estimated states")
     plt.xlabel("Time(s)")
