@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore")
+
 import math
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split
@@ -7,13 +10,21 @@ from scipy.spatial import distance
 #classifies an object by the labels of its nearest datapoints
 class KNearestNeighbors():
 
-    def __init__(self, data, labels, allLabels, k= 3): #needs a set of datapoints, their labels, all the possible lavels, and how many neighbors to search for **note** k should be odd to avoid ties
+    def __init__(self, data, labels, allLabels = None, k= 3): #needs a set of datapoints, their labels, all the possible lavels, and how many neighbors to search for **note** k should be odd to avoid ties
         self.data = data
         self.labels = labels
-        self.allLabels = allLabels
+        if allLabels:
+            self.allLabels = allLabels
+        else:
+            allLabels = []
+            for label in labels:
+                if label not in allLabels:
+                    allLabels.append(label)
+            self.allLabels = allLabels
+            
         self.k = k
         
-    def classify(self, newMember): 
+    def predictPoint(self, newMember): 
         distances = []
         neighbors = [] 
         for x in self.data:
@@ -36,14 +47,18 @@ class KNearestNeighbors():
         classification = self.allLabels[counts.index(max(counts))] #returning the most frequent label
         return classification
     
-    def classifyGroup(self, group):         #takes a list of points, classifies them and returns an array of the classification
+    def predict(self, group):         #takes a list of points, classifies them and returns an array of the classification
         classifications = []
-        for member in group:
-            classifications.append(self.classify(member))
+        if isinstance(group[0], list):
+            for member in group:
+                classifications.append(self.predictPoint(member))
+        else:
+            return self.predictPoint(group)
+            
         return classifications
     
     def scoreTest(self, group, answers):        #test the accuracy of the classifier, takes in a group of points, classifies them, checks that against the answers
-        guesses = self.classifyGroup(group)
+        guesses = self.predict(group)
         score = 0
         for i, guess in enumerate(guesses):
             if guess == answers[i]:
