@@ -184,23 +184,4 @@ class Gaussian():
 if __name__ == "__main__":
     gauss = Gaussian(8, 10) #test code below to make sure everything is working
     gauss2 = Gaussian(2, 13)
-##    print(guass.evaluate(.15))
-##    print(guass.evaluate(-.15))
-##    print(guass.tolerance)
-##    print(guass.generateNoise(15))
-##    #guass.plotGaussian()
-##    print(guass.returnProbDensity(.474) - guass.returnProbDensity(-.474))
-##    im = Image.open('img.png')
-##
-##    pixels = list(im.getdata())
-##    pixelsFlat = []
-##    for x in pixels:
-##        for y in x:
-##            pixelsFlat.append(y)
-##    print(pixelsFlat[1:5])
-##    print(len(pixelsFlat))
-##    size = im.size
-##    print(size)
-##    pixelNum = 0
-##    guass.filter(pixelsFlat, 3, size)   #not working yet, almost done
     print(gauss * gauss2)
