@@ -4,8 +4,8 @@ warnings.filterwarnings("ignore")
 from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
 from sklearn import svm
-from kNearestNeighbors import KNearestNeighbors
-from kMeans import KMeans
+from kNearestNeighbors import KNearestNeighbors <-- My classifier
+from kMeans import KMeans <-- My classifier
 
 
 ###Just testing my classifiers versus scikit classifiers with fake data
