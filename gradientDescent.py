@@ -1,6 +1,6 @@
 import matrix
 import math
-
+import matplotlib.pyplot as plt
 
 ###If using the normal equation method this code needs my matrix library, if not you can comment out the matrix import###
 class GradientDescent():
@@ -68,10 +68,13 @@ class GradientDescent():
         if not ratios:
             ratios = self.ratios
 
-        for i in range(1, len(inputs[0])):
+        for i in range(len(inputs[0])):
             for j in range(len(inputs)):
-                inputs[j][i] = inputs[j][i] * (ratios[i - 1][0] - ratios[i - 1][1]) + ratios[i - 1][1]
-            
+                try:
+                    inputs[j][i] = inputs[j][i] * (ratios[i][0] - ratios[i][1]) + ratios[i][1]
+                except:
+                    inputs[j][i] = ratios[i][0]
+                    
         return inputs
 
     def calcCost(self, inputs, output, derivative = False, num = None): #compares the estimated value to the actual value
@@ -114,7 +117,7 @@ class GradientDescent():
             self.cleanUp()
             return self.weights
         else:
-            pass
+            return self.normalEquation()
 
     def predict(self, inputs, featureScale = None): #takes in a data point and predicts the output useing the current estimated weights
         if featureScale == None:
@@ -132,13 +135,38 @@ class GradientDescent():
             output += weight * inputs[i]
         return output
 
-    def normalEquation(self):               #uses matricies to skip the iterative process, more about this method can be looked up
-        inputMatrix = matrix.Matrix(self.inputs)
+    def normalEquation(self, inputs= None): #uses matricies to skip the iterative process, more about this method can be looked up
+        if inputs == None:
+            inputs = self.inputs
+        
+        inputMatrix = matrix.Matrix(inputs)
         outputMatrix = matrix.Matrix([[y] for y in self.outputs])
         inverse = (inputMatrix.transpose() * inputMatrix).inverse()
         weights = inverse * inputMatrix.transpose() * outputMatrix
-        return weights
+        
+        return [weights[x][0] for x in range(weights.rows)]
     
+
+    def displayData(self):
+        if self.featureScaling:
+            inputs = self.unscaleFeatures()
+        else:
+            inputs = self.inputs
+
+        weights = self.normalEquation()
+        plt.plot(inputs, self.outputs, 'ro', label= 'Data Points')
+        predictedOutputs = []
+        for point in inputs:
+            total = 0
+            for feature, weight in zip(point, weights):
+                total += feature * weight
+            predictedOutputs.append(total)
+                
+        plt.plot(inputs, predictedOutputs, color = 'blue', label= 'Best Fit Line')
+
+        plt.legend(loc='upper left', shadow=True)
+        plt.show()
+        
     def __str__(self):
         string = 'Weights: '
         for weight in self.weights:
@@ -149,3 +177,20 @@ class GradientDescent():
         string += '\nFeature Scaling: ' + str(self.featureScaling)
         return string
 
+ if __name__ == "__main__":
+    trainingData = [[[1,4], 17],[[1,5], 20],[[1,6], 23],[[1,7], 26],[[1,8], 29]]
+    weights = [-5,-8]
+
+    grad = GradientDescent(trainingData, weights, .1, True, 3)
+    print(grad.fit(5000))
+    print('Final Test:')
+    print(grad.predict([1,6]))
+    print(grad.predict([1,7]))
+    print(grad.predict([1,8]))
+    print(grad.predict([1,9]))
+    
+    print(grad.normalEquation())
+
+    grad.displayData()
+
+    print('\n\n')
