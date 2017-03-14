@@ -177,7 +177,7 @@ class GradientDescent():
         string += '\nFeature Scaling: ' + str(self.featureScaling)
         return string
 
- if __name__ == "__main__":
+if __name__ == "__main__":
     trainingData = [[[1,4], 17],[[1,5], 20],[[1,6], 23],[[1,7], 26],[[1,8], 29]]
     weights = [-5,-8]
 
