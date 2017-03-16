@@ -1,7 +1,10 @@
 import warnings
 warnings.filterwarnings("ignore")
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore")
 
 import random
+import scipy
 from scipy.spatial import distance
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
@@ -15,7 +18,7 @@ class KMeans():
         self.data = data
 
         self.labels = labels
-        if labels:
+        if labels is not None:
             if allLabels:
                 self.allLabels = allLabels
             else:
@@ -93,13 +96,13 @@ class KMeans():
                 clusterColor = KMeans.randomColor()
                 
             if len(self.ranges) > 2:        #if doing 3D graphs then we use the ax1 object we set up
-                if self.labels:
+                if self.labels is not None:
                     ax1.scatter(parameters[0], parameters[1], parameters[2], color= clusterColor, label= self.clusterLabels[i])
                 else:
                     ax1.scatter(parameters[0], parameters[1], parameters[2], color= clusterColor, label= "Cluster %d" % nearest.index(cluster))
                 ax1.scatter(self.means[nearest.index(cluster)][0], self.means[nearest.index(cluster)][1], self.means[nearest.index(cluster)][2], color= clusterColor, marker= "x", label= "Mean %d" % nearest.index(cluster))
             else:                           #otherwise we do a 2D scatter plot
-                if self.labels:
+                if self.labels is not None:
                     plt.scatter(parameters[0], parameters[1], color= clusterColor, label= self.clusterLabels[i])
                 else:
                     plt.scatter(parameters[0], parameters[1], color= clusterColor, label= "Cluster %d" % nearest.index(cluster))
@@ -123,10 +126,10 @@ class KMeans():
                 
             minDistance = min(distances)
             nearest[distances.index(minDistance)].append(point) #appending this data point to the cluster list of the closest mean
-            if self.labels:
+            if self.labels is not None:
                 nearestLabels[distances.index(minDistance)].append(self.labels[i])
 
-        if self.labels:
+        if self.labels is not None:
             self.clusterLabels = []
             for cluster in range(self.numMeans):
                 labelCount = [nearestLabels[cluster].count(label) for label in self.allLabels]
@@ -148,7 +151,7 @@ class KMeans():
         distances = []
         
         if self.featureScaling:         #if feature scaling has been done, we have to feature scale the test inputs as well
-            for i in range(len(point)):
+            for i in range(len(self.ranges)):
                 try:
                     point[i] = (point[i] - self.ranges[i][0]) / (self.ranges[i][1] - self.ranges[i][0])
                 except ZeroDivisionError:
@@ -163,10 +166,9 @@ class KMeans():
 
 
     def scoreTest(self, testData, answers):         #for testing the accuracy of the classifier
-        guesses = self.predict(testData)
         total = 0
-        for guess, answer in zip(guesses, answers):
-            if guess == answer:
+        for i in range(len(testData)):
+            if self.predictDataPoint(testData[i]) == answers[i]:
                 total += 1
                 
         return total / float(len(answers))
@@ -174,7 +176,6 @@ class KMeans():
 
     def fit(self, numLoops = 100):          #runs through fitting the clusters
         nearest = self.calcNearest()
-        self.change = False
         
         for y in range(numLoops):
             averages = [[] for i in range(len(nearest))]    #holds the average of each cluster
@@ -195,16 +196,19 @@ class KMeans():
             #input('>>')
             nearest = self.calcNearest()    #updating nearest
             #self.displayData(nearest)
-            if not self.change:
-                return
-
+        return
 
 ###Test Code Below Here###
 if __name__ == "__main__":
 
     fakeData = [[1,1,1],[1.4,.7,.3],[12,7,11],[0,-1,2],[10,9,8],[7,16,12],[7,6,5]]
-    labels = ['man', 'man', 'woman', 'man', 'woman', 'woman', 'women']
-    
-    means = KMeans(fakeData, labels, featureScaling = True)
-    means.fit(1000)
+
+    irisData = datasets.load_iris()
+    Xset,Xtest, Yset, Ytest = train_test_split(irisData.data, irisData.target, test_size = .75)
+    labels = []
+
+    means = KMeans(Xset, labels= Yset, allLabels = [0,1,2], numMeans= 3, featureScaling = True)
+    means.fit(500)
+    print(means.predictDataPoint(Xtest[0]))
+    print(means.scoreTest(Xtest, Ytest))
     means.displayData()
