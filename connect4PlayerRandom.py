@@ -2,46 +2,71 @@ import connect4
 import threading
 import random
 
-class Connect4PlayerRandom(threading.Thread):   #inherits from thread so we can have multiple agents playing at once
+class Connect4PlayerRandom(threading.Thread):   #is a thread so we can run multiple agents
 
-    def __init__(self, game, playerNum):
-        self.game = game                                #it is given a connect4 game object to play
-        self.playerNum = playerNum                      #it is told its turn number
-        self.wins = 0                                   #keeps track of its win percentage
-        super(Connect4PlayerRandom, self).__init__()    #used to also call the thread init to set up all the proper needs of a thread
+    def __init__(self, game):
+        self.wins = 0
+        super(Connect4PlayerRandom, self).__init__()    #calling thread constructor
+        self.start()
 
-    def makeMove(self):                                 #simply picks a random column and plays there if it isn't empty
-        while self.game.turn != self.playerNum:         #waits for its turn
-            pass
-
-        move = random.randint(0, 5)                     #generates move and test if column is open
-        while self.game.board[0][move] != '-':
-            move = random.randint(0, 5)
+    def prepareForNewGame(self):
+        self.playerNum = None
+        self.playerSymbol = None
         
-        if self.game.winner != None:                    #if the game is won abort move, otherwise make the move
-            return None
-        else:
+    def joinNewGame(self, game):
+        self.playerNum, self.playerSymbol = game.addPlayer(self)
+        self.game = game
+
+
+    def gameIsNotOver(self):
+        return self.game.winner == None
+    
+    def takeTurn(self):                                 
+        move = self.generateMove()
+        if self.gameIsNotOver():                    
             self.game.makeMove(move)
 
-    def run(self):                                      #simply plays the game, when the game is over it waits to be given a new game object to play
+    def waitForTurn(self):
+        while self.game.turn != self.playerNum:         
+            pass
+
+    def generateMove(self):
+        move = random.randint(0, 5)                     
+        while self.game.board[0][move] != '-':
+            move = random.randint(0, 5)
+        return move
+    
+    def run(self):                                      
         while True:
-            while self.game.winner == None:
-                self.makeMove()
+            self.waitToBePutInANewGame()
+            self.playGame()
 
             if self.game.winner == self.playerNum:
                 self.wins += 1        
 
-            self.game = None
-            while self.game == None:
+            self.waitForGameLobbyToClose()
+
+    def playGame(self):
+        while self.gameIsNotOver():
+                self.waitForTurn()
+                self.takeTurn()
+                
+    def waitForGameLobbyToClose(self):
+        while self.game != None:
+            pass
+    
+    def waitToBePutInANewGame(self):
+        self.prepareForNewGame()
+        while self.game == None:
                 pass
-            
+        
 if __name__ == "__main__":                              #test code that pits two random players against one another
-    newGame = connect4.Connect4Game()
-    player1 = Connect4Player(newGame, 0)
-    player2 = Connect4Player(newGame, 1)
+    newGame = connect4.Connect4Game(True)
+    player1 = Connect4PlayerRandom(newGame)
+    player2 = Connect4PlayerRandom(newGame)
     player1.start()
     player2.start()
     
     while newGame.winner == None:
         pass
-    print("Winner: Player %d" % newGame.winner)
+    

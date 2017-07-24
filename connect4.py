@@ -1,39 +1,66 @@
-import sys          #just used for the .exc_info() function for reading our error messages
+import sys          
 
 class Connect4Game():
 
     playerSymbols = ['X','O']
 
-    def __init__(self):
-        self.board = [['-' for x in range(6)] for y in range(6)]                          
-        self.turn = 0                                                           #used for the AI players to tell if it is their turn
-        self.winner = None                                                      #once this is set, the game is over, also it holds the result of the match
-        self.numMoves = 0                                                       #if numMoves == 36 and no winner than the game is a draw as the board is filled
+    def __init__(self, viewGame = False):
+        self.prepareForNewGame()
+        self.viewGame = viewGame
+
+    def prepareForNewGame(self):
+        self.clearBoard()
+        self.resetPlayers()
+        self.turn = 0
+        self.numMoves = 0
         self.lastMove = []
 
+    def resetPlayers(self):
+        self.numPlayers = 0
+        self.players[0].game = None
+        self.players[1].game = None
+        self.players = []
+        self.winner = None
+
+    def addPlayer(self, player):
+        playerNumber = self.numPlayers
+        playerSymbol = Connect4Game.playerSymbols[playerNumber]
+        self.players[self.numPlayers] = player
+        self.numPlayers += 1
+        return playerNumber, playerSymbol
     
-    def makeMove(self, column):                                                 
-        self.raiseErrorIfInvalidMove(column)
+    def makeMove(self, column):
+        try:
+            self.raiseErrorIfInvalidMove(column)
+        except Exception as e:
+            print(e)
+            return
         self.numMoves += 1
         
-        row = 5
-        while self.board[row][column] != '-':
-            row -= 1
-
+        row = self.calculateLastMovesRow(column)
         self.lastMove = [row, column]
+        
         self.board[row][column] = Connect4Game.playerSymbols[self.turn]
         self.winner = self.checkIfGameOver()
-        self.turn = int(not self.turn)                                                      
+        self.turn = int(not self.turn)
+        self.displayBoard()
     
     def raiseErrorIfInvalidMove(self, column):
         if self.winner != None:
-            raise ValueError("Game is already over, player %d won" % (self.winner + 1))     #throw an error if the game is over
+            raise ValueError("Game is already over, player %d won" % (self.winner + 1))     
 
-        if column > 5 or column < 0 or not isinstance(column, int):                         #just checking for valid plays
+        if column > 5 or column < 0 or not isinstance(column, int):                     
             raise ValueError('Invalid move: %d by player %d' % (column, self.turn))
 
         if self.board[0][column] != '-':
             raise ValueError('Invalid move %d by player %d, not an open column' % (column, self.turn))
+
+    def calculateLastMovesRow(self, column):
+        row = 5
+        while self.board[row][column] != '-':
+            row -= 1
+        return row
+        
 
     def checkIfGameOver(self):
         if self.checkWin():
@@ -44,7 +71,7 @@ class Connect4Game():
             return None
 
 
-    def checkWin(self):                                    #calls all our checkXXX functions and returns whether or not the game is won
+    def checkWin(self):                                    
         if self.checkHorizontal():
             return True
         if self.checkVertical():
@@ -71,7 +98,7 @@ class Connect4Game():
         return max(results)
 
     
-    def checkVertical(self):                       #checking for a verticl group of 4, returning true if one is found
+    def checkVertical(self):                       
         if self.lastMove[0] > 2:
             return False
         else:
@@ -150,14 +177,22 @@ class Connect4Game():
                 return False
         return True
     
-    
+    def clearBoard(self):
+        self.board = [['-' for x in range(6)] for y in range(6)]
+
+
+    def displayBoard(self):
+        if self.viewGame:
+            print(self)
+            if self.winner != None:
+                print("\n\nWinner: Player %d\n" % self.winner)
     
     def __str__(self):         
         boardStr = ''
         for row in self.board:
             boardStr += str(row)
             boardStr += '\n'
-        boardStr += "[ 1    2    3    4    5    6 ]"
+        boardStr += "[ 1    2    3    4    5    6 ]\n\n"
         return boardStr
     
 if __name__ == "__main__":              #simple test code for playing the game hotseat or with yourself to test it
