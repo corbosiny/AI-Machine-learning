@@ -1,4 +1,4 @@
-import sys          
+import sys
 import connect4PlayerRandom
 
 class Connect4Game():
@@ -11,6 +11,7 @@ class Connect4Game():
         self.viewGame = viewGame 
         
     def prepareForNewGame(self):
+        self.waitForPlayersToLeaveGame()
         self.clearBoard()
         self.resetPlayers()
         self.turn = 0
@@ -18,18 +19,26 @@ class Connect4Game():
         self.lastMove = []
         self.winner = None
 
+    def waitForPlayersToLeaveGame(self):
+        for player in self.players:
+            if player.game is self:
+                self.waitForPlayerToLeaveGame(player)
+
+    def waitForPlayerToLeaveGame(self, player):
+        if self.isHumanPlayer(player):
+            pass
+        
+        self.turn = player.playerNum
+        while player.game is self:
+            pass
+
+    def isHumanPlayer(self, player):
+        return isinstance(player, str)
+    
     def resetPlayers(self):
         self.numPlayers = 0
-        if self.players:
-            self.removePlayerFromGame(self.players[0])
-            self.removePlayerFromGame(self.players[1])
         self.players = []
-
-    def removePlayerFromGame(self, player):
-        try:
-            player.game = None
-        except:
-            pass                        #this will happen if a player puts themselves into the game
+                  
 
     def addPlayer(self, player):
         playerNumber = self.numPlayers
@@ -49,10 +58,6 @@ class Connect4Game():
         self.updateGameState()
         self.displayBoard()
 
-    def updateGameState(self):
-        self.numMoves += 1
-        self.winner = self.checkIfGameOver()
-        self.turn = int(not self.turn)
     
     def checkIfInvalidMove(self, column):
         if self.winner != None:
@@ -76,14 +81,26 @@ class Connect4Game():
         return row
         
 
+    def updateGameState(self):
+        self.numMoves += 1
+        self.winner = self.checkIfGameOver()
+        self.turn = int(not self.turn)
+
+
     def checkIfGameOver(self):
         if self.checkWin():
+            self.awardPlayerTheWin(self.turn)
             return self.turn 
         elif self.numMoves == len(self.board) * len(self.board[0]):     
             return "DRAW"
         else:
             return None
 
+    def awardPlayerTheWin(self, playerNum):
+        try:
+            self.players[playerNum].wins += 1
+        except:             #will trigger for human players
+            pass
 
     def checkWin(self):                                    
         if self.checkHorizontal():
@@ -93,6 +110,8 @@ class Connect4Game():
         if self.checkDiagnols():
             return True
         return False
+
+
 
     def checkHorizontal(self):                                                 
         results = []
@@ -228,7 +247,6 @@ if __name__ == "__main__":
         newGame.addPlayer("Corey")
         AIplayer.joinNewGame(newGame)
 
-        print(newGame.players)
         while newGame.winner == None:
             while newGame.turn != 0:
                 pass
@@ -236,6 +254,5 @@ if __name__ == "__main__":
             newGame.makeMove(move - 1)
         
         print("Winner: Player", newGame.winner)
-        newGame.players[newGame.winner].wins += 1
         newGame.prepareForNewGame()
     

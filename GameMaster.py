@@ -45,19 +45,19 @@ class GameMaster():
         self.addPlayerToGame(game, player1)
         self.addPlayerToGame(game, player2)
 
+    def setGameToClosed(self, game):
+        self.closedGamePool.append(game)
+        self.openGamePool.remove(game)
         
     def addPlayerToGame(self, game, player):
         self.setPlayerStatusToInGame(player)
-        game.addPlayer(player)
+        player.joinNewGame(game)
 
 
     def setPlayerStatusToInGame(self, player):
         self.playersInGame.append(player)
         self.waitingPlayers.remove(player)
         
-    def setGameToClosed(self, game):
-        self.closedGamePool.append(game)
-        self.openGamePool.remove(game)
 
 
     def spectateRandomGame(self):
@@ -89,7 +89,6 @@ class GameMaster():
         self.closedGamePool.remove(game)
         self.openGamePool.append(game)
         players = game.players
-        players[game.winner].wins += 1
         game.prepareForNewGame()
         self.setPlayerStatusToWaiting(players[0])
         self.setPlayerStatusToWaiting(players[1])
