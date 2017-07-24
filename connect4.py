@@ -1,59 +1,73 @@
 import sys          
+import connect4PlayerRandom
 
 class Connect4Game():
 
     playerSymbols = ['X','O']
 
     def __init__(self, viewGame = False):
+        self.players = []
         self.prepareForNewGame()
-        self.viewGame = viewGame
-
+        self.viewGame = viewGame 
+        
     def prepareForNewGame(self):
         self.clearBoard()
         self.resetPlayers()
         self.turn = 0
         self.numMoves = 0
         self.lastMove = []
+        self.winner = None
 
     def resetPlayers(self):
         self.numPlayers = 0
-        self.players[0].game = None
-        self.players[1].game = None
+        if self.players:
+            self.removePlayerFromGame(self.players[0])
+            self.removePlayerFromGame(self.players[1])
         self.players = []
-        self.winner = None
+
+    def removePlayerFromGame(self, player):
+        try:
+            player.game = None
+        except:
+            pass                        #this will happen if a player puts themselves into the game
 
     def addPlayer(self, player):
         playerNumber = self.numPlayers
         playerSymbol = Connect4Game.playerSymbols[playerNumber]
-        self.players[self.numPlayers] = player
+        self.players.append(player)
         self.numPlayers += 1
         return playerNumber, playerSymbol
     
     def makeMove(self, column):
-        try:
-            self.raiseErrorIfInvalidMove(column)
-        except Exception as e:
-            print(e)
+        if self.checkIfInvalidMove(column):
             return
-        self.numMoves += 1
         
         row = self.calculateLastMovesRow(column)
-        self.lastMove = [row, column]
-        
         self.board[row][column] = Connect4Game.playerSymbols[self.turn]
+        self.lastMove = [row, column]
+
+        self.updateGameState()
+        self.displayBoard()
+
+    def updateGameState(self):
+        self.numMoves += 1
         self.winner = self.checkIfGameOver()
         self.turn = int(not self.turn)
-        self.displayBoard()
     
-    def raiseErrorIfInvalidMove(self, column):
+    def checkIfInvalidMove(self, column):
         if self.winner != None:
-            raise ValueError("Game is already over, player %d won" % (self.winner + 1))     
+            print("Game is already over, player %d won" % (self.winner + 1))     
+            return True
 
         if column > 5 or column < 0 or not isinstance(column, int):                     
-            raise ValueError('Invalid move: %d by player %d' % (column, self.turn))
+            print('Invalid move: %d by player %d' % (column, self.turn))
+            return True
 
         if self.board[0][column] != '-':
-            raise ValueError('Invalid move %d by player %d, not an open column' % (column, self.turn))
+            print('Invalid move %d by player %d, not an open column' % (column, self.turn))
+            return True
+        
+        return False
 
     def calculateLastMovesRow(self, column):
         row = 5
@@ -195,14 +209,29 @@ class Connect4Game():
         boardStr += "[ 1    2    3    4    5    6 ]\n\n"
         return boardStr
     
-if __name__ == "__main__":              #simple test code for playing the game hotseat or with yourself to test it
-    newGame = Connect4Game()
-    print(newGame)
-    while newGame.winner == None:
+if __name__ == "__main__":              
+    newGame = Connect4Game(True)
+
+##    print(newGame)                            #uncomment for hotset game test
+##    while newGame.winner == None:
+##            move = int(input('\n>> '))
+##            newGame.makeMove(move - 1)
+##            print(newGame)
+
+    AIplayer = connect4PlayerRandom.Connect4PlayerRandom()      #uncomment to play against random AI
+
+    while True:
+        newGame.displayBoard()
+        newGame.addPlayer("Corey")
+        AIplayer.joinNewGame(newGame)
+
+        print(newGame.players)
+        while newGame.winner == None:
+            while newGame.turn != 0:
+                pass
             move = int(input('\n>> '))
             newGame.makeMove(move - 1)
-            print(newGame)
-
-            
-    print(newGame)
-    print("Winner: Player", newGame.winner)
+        
+        print("Winner: Player", newGame.winner)
+        newGame.prepareForNewGame()
+    

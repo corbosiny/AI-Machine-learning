@@ -4,8 +4,9 @@ import random
 
 class Connect4PlayerRandom(threading.Thread):   #is a thread so we can run multiple agents
 
-    def __init__(self, game):
+    def __init__(self):
         self.wins = 0
+        self.game = None
         super(Connect4PlayerRandom, self).__init__()    #calling thread constructor
         self.start()
 
