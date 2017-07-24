@@ -1,41 +1,42 @@
 import random
-import Connect4Game()
+from connect4 import Connect4Game
+from connect4PlayerRandom import Connect4PlayerRandom
+
 class GameMaster():
 
 
     def __init__(self, gamePool, players):
-        this.openGamePool = gamePool
-        this.closedGamePool = []
-        this.waitingPlayers = players
-        this.playersInGame = []
+        self.openGamePool = gamePool
+        self.closedGamePool = []
+        self.waitingPlayers = players
+        self.playersInGame = []
         self.startAllGames()
         self.spectatingGame = None
         self.runGames = True
-        manageGames()
+        self.manageGames()
         
     def manageGames(self):
         while self.runGames:
             self.waitForOpenGame()
-            self.pickTwoPlayers()
-            self.startGame()
+            player1, player2 = self.pickTwoPlayers() 
+            self.startGame(self.openGamePool[0], player1, player2)
 
     def startAllGames(self):
-        while len(this.gamePool) != 0 and len(this.waitingPlayers) > 2:
+        while len(self.openGamePool) != 0 and len(self.waitingPlayers) > 2:
             player1, player2 = self.pickTwoPlayers()            
-            self.startGame(gamePool[0], player1, player2)
-            player1.start()
-            player2.start()
+            self.startGame(self.openGamePool[0], player1, player2)
+
             
     def waitForOpenGame(self):
-        self.spectateRandomGame()
-        while len(this.openGamePool) == 0 or len(this.waitingPlayers) < 2:
-            pass
+        while len(self.openGamePool) == 0 or len(self.waitingPlayers) < 2:
+            self.spectateRandomGame()
+            self.resetFinishedGames()
         
     def pickTwoPlayers(self):
         tempPlayerList = [x for x in self.waitingPlayers]
-        choiceOne = random.randint(0, len(self.tempPlayerList) - 1)
+        choiceOne = random.randint(0, len(tempPlayerList) - 1)
         player1 = tempPlayerList.pop(choiceOne)
-        choiceTwo = random.randint(0, len(self.tempPlayerList) - 1)
+        choiceTwo = random.randint(0, len(tempPlayerList) - 1)
         player2 = tempPlayerList.pop(choiceTwo)
         return player1, player2
 
@@ -43,24 +44,21 @@ class GameMaster():
         self.setGameToClosed(game)
         self.addPlayerToGame(game, player1)
         self.addPlayerToGame(game, player2)
-        
-        self.setPlayerStatusToInGame(player1)
-        self.setPlayerStatusToInGame(player2)
+
         
     def addPlayerToGame(self, game, player):
         self.setPlayerStatusToInGame(player)
         game.addPlayer(player)
-    
-        
-    def setGameToClosed(self, game):
-        self.closedGamePool.append(game)
-        self.openGamePool.remove(game)
-        game.prepareForNewGame()
+
 
     def setPlayerStatusToInGame(self, player):
         self.playersInGame.append(player)
         self.waitingPlayers.remove(player)
         
+    def setGameToClosed(self, game):
+        self.closedGamePool.append(game)
+        self.openGamePool.remove(game)
+
 
     def spectateRandomGame(self):
         if self.spectatingGame is None:
@@ -68,31 +66,41 @@ class GameMaster():
             self.spectatingGame = self.closedGamePool[random.randint(0, length - 1)]
             self.spectatingGame.viewGame = True
         else:
-            if self.spectatingGame.winner != None:
+            print(self.spectatingGame)
+            if not self.spectatingGame.gameIsNotOver():
+                self.spectatingGame.viewGame = False
                 self.spectatingGame = None
-    
-    def addNewPlayer(self, newPlayer):
-        self.waitingPlayers.append(newPlayer)
-        
-    def removePlayer(self, player):
-        if player in self.waitingPlayers:
-            self.waitingPlayers.remove(player)
 
-        else:
-            game = findGameThePlayerIsIn(player)
-            stopGameInProgress(game)
-            
+    def addNewPlayerToPool(self, newPlayer):
+        self.waitingPlayers.append(newPlayer)
+
+    def removePlayerFromPool(self, player):
+        while player not in self.waitingPlayers:
+            pass
+        self.waitingPlayers.remove(player)
+    
 
     def resetFinishedGames(self):
         for game in self.closedGamePool:
-            if game.winner != None:
+            if not game.gameIsNotOver():
                 self.resetFinishedGame(game)
 
     def resetFinishedGame(self, game):
         self.closedGamePool.remove(game)
         self.openGamePool.append(game)
+        players = game.players
+        players[game.winner].wins += 1
         game.prepareForNewGame()
+        self.setPlayerStatusToWaiting(players[0])
+        self.setPlayerStatusToWaiting(players[1])
         
+
+    def setPlayerStatusToWaiting(self, player):
+        self.waitingPlayers.append(player)
+        self.playersInGame.remove(player)
     
 if __name__ == "__main__":
+    players = [Connect4PlayerRandom() for x in range(10)]
+    games = [Connect4Game() for x in range(5)]
+    master = GameMaster(games, players)
     

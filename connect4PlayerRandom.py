@@ -18,13 +18,10 @@ class Connect4PlayerRandom(threading.Thread):   #is a thread so we can run multi
         self.playerNum, self.playerSymbol = game.addPlayer(self)
         self.game = game
 
-
-    def gameIsNotOver(self):
-        return self.game.winner == None
     
     def takeTurn(self):                                 
         move = self.generateMove()
-        if self.gameIsNotOver():                    
+        if self.game != None and self.game.gameIsNotOver():                    
             self.game.makeMove(move)
 
     def waitForTurn(self):
@@ -40,15 +37,12 @@ class Connect4PlayerRandom(threading.Thread):   #is a thread so we can run multi
     def run(self):                                      
         while True:
             self.waitToBePutInANewGame()
-            self.playGame()
-
-            if self.game.winner == self.playerNum:
-                self.wins += 1        
+            self.playGame()   
 
             self.waitForGameLobbyToClose()
 
     def playGame(self):
-        while self.gameIsNotOver():
+        while self.game != None and self.game.gameIsNotOver():
                 self.waitForTurn()
                 self.takeTurn()
                 
@@ -63,11 +57,16 @@ class Connect4PlayerRandom(threading.Thread):   #is a thread so we can run multi
         
 if __name__ == "__main__":                              #test code that pits two random players against one another
     newGame = connect4.Connect4Game(True)
-    player1 = Connect4PlayerRandom(newGame)
-    player2 = Connect4PlayerRandom(newGame)
-    player1.start()
-    player2.start()
+
+    while True:
+        newGame.displayBoard()
+        player1 = Connect4PlayerRandom()
+        player2 = Connect4PlayerRandom()
+        player1.joinNewGame(newGame)
+        player2.joinNewGame(newGame)
     
-    while newGame.winner == None:
-        pass
-    
+        while newGame.winner == None:
+            pass
+
+        newGame.players[newGame.winner].wins += 1
+        newGame.prepareForNewGame()

@@ -200,6 +200,9 @@ class Connect4Game():
             print(self)
             if self.winner != None:
                 print("\n\nWinner: Player %d\n" % self.winner)
+
+    def gameIsNotOver(self):
+        return self.winner == None
     
     def __str__(self):         
         boardStr = ''
@@ -233,5 +236,6 @@ if __name__ == "__main__":
             newGame.makeMove(move - 1)
         
         print("Winner: Player", newGame.winner)
+        newGame.players[newGame.winner].wins += 1
         newGame.prepareForNewGame()
     
