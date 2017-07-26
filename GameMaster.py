@@ -31,7 +31,7 @@ class GameMaster():
         while len(self.openGamePool) == 0 or len(self.waitingPlayers) < 2:
             self.spectateRandomGame()
             self.resetFinishedGames()
-        
+
     def pickTwoPlayers(self):
         tempPlayerList = [x for x in self.waitingPlayers]
         choiceOne = random.randint(0, len(tempPlayerList) - 1)
@@ -51,7 +51,7 @@ class GameMaster():
         
     def addPlayerToGame(self, game, player):
         self.setPlayerStatusToInGame(player)
-        player.joinNewGame(game)
+        game.addPlayer(player)
 
 
     def setPlayerStatusToInGame(self, player):
