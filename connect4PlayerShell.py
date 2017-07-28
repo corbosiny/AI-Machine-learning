@@ -1,5 +1,6 @@
 import connect4
 import threading
+import time
 
 class Connect4PlayerShell(threading.Thread):
     def __init__(self):
@@ -37,7 +38,8 @@ class Connect4PlayerShell(threading.Thread):
     
     def takeTurn(self):
         if self.game.gameIsNotOver(): 
-            move = self.generateMove()                   
+            move = self.generateMove()
+            time.sleep(1)
             self.game.makeMove(move)
 
 

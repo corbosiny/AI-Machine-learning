@@ -1,5 +1,5 @@
 class Connect4Board():
-
+    
     def __init__(self):
         self.clearBoard()
         
@@ -14,11 +14,11 @@ class Connect4Board():
 
     def checkIfInvalidMove(self, column):
         if column > 5 or column < 0 or not isinstance(column, int):                     
-            print('Invalid move: %d by player %d' % (column, self.turn))
+            print('Invalid move: %d by current player, not in column range' % (column))
             return True
 
         if self.rows[0][column] != '-':
-            print('Invalid move %d by player %d, not an open column' % (column, self.turn))
+            print('Invalid move %d by current player, not an open column' % (column))
             return True
         
         return False

@@ -2,6 +2,7 @@ import connect4
 from connect4PlayerShell import Connect4PlayerShell
 import threading
 import random
+import time
 
 class Connect4PlayerRandom(Connect4PlayerShell):   #the template most of our functionality comes from
 
@@ -24,8 +25,8 @@ if __name__ == "__main__":                              #test code that pits two
         newGame.displayBoard()
         player1 = Connect4PlayerRandom()
         player2 = Connect4PlayerRandom()
-        player1.joinNewGame(newGame)
-        player2.joinNewGame(newGame)
+        newGame.addPlayer(player1)
+        newGame.addPlayer(player2)
     
         while newGame.winner == None:
             pass

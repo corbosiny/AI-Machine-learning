@@ -9,19 +9,15 @@ class Connect4Game():
     def __init__(self, viewGame = False):
         self.board = Connect4Board()
         self.viewGame = viewGame
-        self.resetPlayers()
-        self.resetGameState()
+        self.players = []
         
-    def prepareForNewGame(self):
+        self.prepareForNewGame()
+        
+    def prepareForNewGame(self):        
         self.waitForPlayersToLeaveGame()
         self.board.clearBoard()
-        self.resetPlayers()
         self.resetGameState()
-
-    def resetGameState(self):
-        self.turn = 0
-        self.numMoves = 0
-        self.winner = None
+        self.displayBoard()
         
     def waitForPlayersToLeaveGame(self):
         for player in self.players:
@@ -37,6 +33,12 @@ class Connect4Game():
 
     def isHumanPlayer(self, player):
         return isinstance(player, str)
+
+    def resetGameState(self):
+        self.resetPlayers()
+        self.turn = 0
+        self.numMoves = 0
+        self.winner = None
     
     def resetPlayers(self):
         self.numPlayers = 0
@@ -88,12 +90,13 @@ class Connect4Game():
             pass
 
 
+        self.displayBoard()
+
     def displayBoard(self):
         if self.viewGame:
-            print(self)
-            if self.winner != None:
-                print("\n\nWinner: Player %d\n" % self.winner)
-
+            print(self.board)
+        
+        
     def gameIsNotOver(self):
         return self.winner == None
     
@@ -112,10 +115,9 @@ if __name__ == "__main__":
     AIplayer = connect4PlayerRandom.Connect4PlayerRandom()      #uncomment to play against random AI
 
     while True:
-        newGame.displayBoard()
         newGame.addPlayer("Corey")
         newGame.addPlayer(AIplayer)
-
+        
         while newGame.winner == None:
             while newGame.turn != 0:
                 pass

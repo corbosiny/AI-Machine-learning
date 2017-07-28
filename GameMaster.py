@@ -1,17 +1,21 @@
 import random
+from connect4GameViewer import Connect4GameViewer
 from connect4 import Connect4Game
 from connect4PlayerRandom import Connect4PlayerRandom
 
 class GameMaster():
 
 
-    def __init__(self, gamePool, players):
+    def __init__(self, gamePool, players, spectateGames = False):
+        self.games = gamePool
         self.openGamePool = gamePool
         self.closedGamePool = []
         self.waitingPlayers = players
         self.playersInGame = []
         self.startAllGames()
-        self.spectatingGame = None
+        
+        self.spectateGames = spectateGames
+        self.initTournamentViewer()
         self.runGames = True
         self.manageGames()
         
@@ -29,7 +33,7 @@ class GameMaster():
             
     def waitForOpenGame(self):
         while len(self.openGamePool) == 0 or len(self.waitingPlayers) < 2:
-            self.spectateRandomGame()
+            self.tournamentViewer.updateGames()
             self.resetFinishedGames()
 
     def pickTwoPlayers(self):
@@ -60,16 +64,12 @@ class GameMaster():
         
 
 
-    def spectateRandomGame(self):
-        if self.spectatingGame is None:
-            length = len(self.closedGamePool)
-            self.spectatingGame = self.closedGamePool[random.randint(0, length - 1)]
-            self.spectatingGame.viewGame = True
-        else:
-            print(self.spectatingGame)
-            if not self.spectatingGame.gameIsNotOver():
-                self.spectatingGame.viewGame = False
-                self.spectatingGame = None
+    def initTournamentViewer(self):
+        self.tournamentViewer = Connect4GameViewer(self)
+        self.tournamentViewer.start()
+        while len(self.tournamentViewer.textBoxes) != len(self.games):
+            pass
+
 
     def addNewPlayerToPool(self, newPlayer):
         self.waitingPlayers.append(newPlayer)
