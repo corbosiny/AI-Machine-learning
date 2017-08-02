@@ -12,7 +12,8 @@ class Connect4PlayerShell(threading.Thread):
         while True:
             self.prepareForNewGame()
             self.waitToBePutInANewGame()
-            self.playGame()   
+            self.playGame()
+            self.checkIfWinner()
             self.leaveGame()
 
 
@@ -42,8 +43,12 @@ class Connect4PlayerShell(threading.Thread):
 
 
     def generateMove(self):
-        pass                #inheritors will fill this in
+        pass                #decendant classes will fill this in
 
+
+    def checkIfWinner(self):
+        if self.game.winner == self.playerNum:
+            self.wins += 1
 
     def leaveGame(self):
         self.game = None

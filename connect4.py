@@ -82,16 +82,12 @@ class Connect4Game():
 
     def checkIfGameOver(self):
         if self.board.checkWin():
-            self.awardPlayerTheWin(self.turn)
             return self.turn 
         elif self.numMoves == len(self.board) * len(self.board[0]):     
             return "DRAW"
         else:
             return None
 
-
-    def awardPlayerTheWin(self, playerNum):
-        self.players[playerNum].wins += 1
 
 
 
