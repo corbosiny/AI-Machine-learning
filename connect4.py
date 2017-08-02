@@ -1,14 +1,14 @@
 import sys
-from connect4Board import Connect4Board
+from connect4Board import *
 import connect4PlayerRandom
 
 class Connect4Game():
 
     playerSymbols = ['X','O']
 
-    def __init__(self, printGame = False):
+    def __init__(self, printGameAfterMove = False):
         self.board = Connect4Board()
-        self.printGame = printGame
+        self.printGameAfterMove = printGameAfterMove
         self.players = []
         
         self.prepareForNewGame()
@@ -24,7 +24,7 @@ class Connect4Game():
             self.waitForPlayerToLeaveGame(player)
 
     def waitForPlayerToLeaveGame(self, player):
-        if self.isHumanPlayer(player):
+        if self.isHumanPlayer(player):              #human players are represetned as strings
             return
         
         self.turn = player.playerNum
@@ -34,6 +34,7 @@ class Connect4Game():
     def isHumanPlayer(self, player):
         return isinstance(player, str)
 
+                  
     def resetGameState(self):
         self.resetPlayers()
         self.turn = 0
@@ -43,28 +44,36 @@ class Connect4Game():
     def resetPlayers(self):
         self.numPlayers = 0
         self.players = []
-                  
+
+
+
+
 
 
     def addPlayer(self, player):
-        if not isinstance(player, str):         #this wont trigger for human players as they are just a string
+        try:
             player.playerNum = self.numPlayers
-            player.playerSym = Connect4Game.playerSymbols[self.numPlayers]
+            player.playerSymbol = Connect4Game.playerSymbols[self.numPlayers]
             player.game = self
+        except:                 #triggers for human players
+            pass
+        
         self.players.append(player)
         self.numPlayers += 1
+
+
+
     
 
     def makeMove(self, column):
-        if self.board.checkIfInvalidMove(column):
+        currentPlayerSymbol = Connect4Game.playerSymbols[self.turn]
+        try:
+            self.board.updateBoard(column, currentPlayerSymbol)
+            self.updateGameState()
+            self.displayBoard()
+        except InvalidMoveError as e:
+            print(e)
             return
-
-        sym = Connect4Game.playerSymbols[self.turn]
-        self.board.updateBoard(column, sym)
-
-        self.updateGameState()
-        self.displayBoard()
-
         
 
     def updateGameState(self):
@@ -90,10 +99,10 @@ class Connect4Game():
             pass
 
 
-        self.displayBoard()
+
 
     def displayBoard(self):
-        if self.printGame:
+        if self.printGameAfterMove:
             print(self.board)
         
         

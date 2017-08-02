@@ -27,7 +27,7 @@ if __name__ == "__main__":                              #test code that pits two
         player2 = Connect4PlayerRandom()
         newGame.addPlayer(player1)
         newGame.addPlayer(player2)
-    
+
         while newGame.winner == None:
             pass
 

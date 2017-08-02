@@ -18,14 +18,14 @@ class GameMaster(threading.Thread):
         super(GameMaster, self).__init__()
         
     def run(self):
+        self.initTournamentViewer()
         while True:
-            self.initTournamentViewer()
             while self.continueTournament:
                 self.startAllGames()
                 self.waitForAllGamesToFinish()
 
-            self.shutOffTournamentViewer()
-            while not self.continueTournament():
+            #self.shutOffTournamentViewer()
+            while not self.continueTournament:
                 pass
 
 
@@ -117,4 +117,7 @@ if __name__ == "__main__":
         elif command == "start":
             print('resuming tournament, staring next round')
             master.continueTournament = True
+        elif command == "view wins":
+            for player in master.waitingPlayers + master.playersInGame:
+                print(player.wins)
     

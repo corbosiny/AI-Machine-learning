@@ -2,18 +2,15 @@ import connect4                                         #our game object
 import threading
 import random                                           #used for move probability choice
 import time                                             #used to give the time for the AI to make its move before we display the board
-import connect4PlayerRandom                             #used for our agent to play against as a benchmark
-import max                                              #just used for square roots and such
-
+from connect4PlayerRandom import Connect4PlayerRandom                             #used for our agent to play against as a benchmark
+import math                                            #just used for square roots and such
+from connect4PlayerShell import Connect4PlayerShell
 
 #if confused on the requirments we put on columns and rows to check moves, look at the connect4 game code where I explain why we need to check those before checking certain moves
-class Connect4Player(threading.Thread):                 #inherits from thread so we can run multiple agents playing in the background
+class Connect4Player(Connect4PlayerShell):                 #inherits from thread so we can run multiple agents playing in the background
 
-    def __init__(self, game, playerNum):
-        self.game = game                                #we give it a game obejct to play
-        self.playerNum = playerNum                      #tell it its turn number
-        self.wins = 0                                   #keeps track of wins
-        self.sym = self.game.playerSymbols[playerNum]   #keeps track of its own symbol for when its determining good moves
+    def __init__(self):
+        self.wins = 0                                   
         super(Connect4Player, self).__init__()          #calls the thread init function to prepare the threads normal abilities
 
     def makeMove(self, move):                           #checks if the game is over and if its the agents turn, if so then it sends the move to the game object
@@ -80,9 +77,9 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 4):                       #keeps track of how many of our pieces and how many of the opponents peices are there
-                    if self.game.board[row][column + y] == self.sym:
+                    if self.game.board[row][column + y] == self.playerSymbol:
                         numMySyms += 1
-                    elif self.game.board[row][column + y] != self.sym and self.game.board[row][column + y] != '-':
+                    elif self.game.board[row][column + y] != self.playerSymbol and self.game.board[row][column + y] != '-':
                         numNotMySyms += 1
                 if numMySyms == 3 or numNotMySyms == 3:     #if there are three of our or their peices we must play here to win or avoid loosing
                     moves.append([-1, column])
@@ -94,13 +91,13 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 3):
-                    if self.game.board[row][column + y] == self.sym:
+                    if self.game.board[row][column + y] == self.playerSymbol:
                         numMySyms += 1
-                    elif self.game.board[row][column + y] != self.sym and self.game.board[row][column + y] != '-':
+                    elif self.game.board[row][column + y] != self.playerSymbol and self.game.board[row][column + y] != '-':
                         numNotMySyms += 1
-                if self.game.board[row][column - 1] == self.sym:
+                if self.game.board[row][column - 1] == self.playerSymbol:
                     numMySyms += 1
-                elif self.game.board[row][column - 1] != self.sym and self.game.board[row][column - 1] != '-':
+                elif self.game.board[row][column - 1] != self.playerSymbol and self.game.board[row][column - 1] != '-':
                     numNotMySyms += 1
                     
                 if numMySyms == 3 or numNotMySyms == 3:
@@ -113,9 +110,9 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 4):
-                    if self.game.board[row][column - y] == self.sym:
+                    if self.game.board[row][column - y] == self.playerSymbol:
                         numMySyms += 1
-                    elif self.game.board[row][column - y] != self.sym and self.game.board[row][column - y] != '-':
+                    elif self.game.board[row][column - y] != self.playerSymbol and self.game.board[row][column - y] != '-':
                         numNotMySyms += 1
                 if numMySyms == 3 or numNotMySyms == 3:
                     moves.append([-1, column])
@@ -127,13 +124,13 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 3):
-                    if self.game.board[row][column - y] == self.sym:
+                    if self.game.board[row][column - y] == self.playerSymbol:
                         numMySyms += 1
-                    elif self.game.board[row][column - y] != self.sym and self.game.board[row][column - y] != '-':
+                    elif self.game.board[row][column - y] != self.playerSymbol and self.game.board[row][column - y] != '-':
                         numNotMySyms += 1
-                if self.game.board[row][column + 1] == self.sym:
+                if self.game.board[row][column + 1] == self.playerSymbol:
                     numMySyms += 1
-                elif self.game.board[row][column + 1] != self.sym and self.game.board[row][column + 1] != '-':
+                elif self.game.board[row][column + 1] != self.playerSymbol and self.game.board[row][column + 1] != '-':
                     numNotMySyms += 1
                     
                 if numMySyms == 3 or numNotMySyms == 3:
@@ -165,9 +162,9 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 while tempRow < 6 and tempRow < row + 4:
-                    if self.game.board[tempRow][column] == self.sym:
+                    if self.game.board[tempRow][column] == self.playerSymbol:
                         numMySyms += 1
-                    elif self.game.board[tempRow][column] != self.sym and self.game.board[tempRow][column] != '-':
+                    elif self.game.board[tempRow][column] != self.playerSymbol and self.game.board[tempRow][column] != '-':
                         numNotMySyms += 1
                     tempRow += 1
 
@@ -220,7 +217,7 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1,4):
-                    if self.game.board[row - y][column + y] == self.sym:
+                    if self.game.board[row - y][column + y] == self.playerSymbol:
                         numMySyms += 1
                     elif self.game.board[row - y][column + y] != '-':
                         numNotMySyms += 1
@@ -235,12 +232,12 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 3):
-                    if self.game.board[row - y][column + y] == self.sym:
+                    if self.game.board[row - y][column + y] == self.playerSymbol:
                         numMySyms += 1
                     elif self.game.board[row - y][column + y] != '-':
                         numNotMySyms += 1
 
-                if self.game.board[row + 1][column - 1] == self.sym:
+                if self.game.board[row + 1][column - 1] == self.playerSymbol:
                     numMySyms += 1
                 elif self.game.board[row + 1][column - 1] != '-':
                     numNotMySyms += 1
@@ -256,7 +253,7 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numNotMySyms = 0
 
                 for y in range(1, 4):
-                    if self.game.board[row + y][column - y] == self.sym:
+                    if self.game.board[row + y][column - y] == self.playerSymbol:
                         numMySyms += 1
                     elif self.game.board[row + y][column - y] != '-':
                         numNotMySyms += 1
@@ -272,13 +269,13 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numNotMySyms = 0
 
                 for y in range(1, 3):
-                    if self.game.board[row + y][column - y] == self.sym:
+                    if self.game.board[row + y][column - y] == self.playerSymbol:
                         numMySyms += 1
                         
                     elif self.game.board[row + y][column - y] != '-':
                         numNotMySyms += 1
                         
-                if self.game.board[row - 1][column + 1] == self.sym:
+                if self.game.board[row - 1][column + 1] == self.playerSymbol:
                     numMySyms += 1
                 elif self.game.board[row][column + 1] != '-':
                     numNotMySyms += 1
@@ -314,7 +311,7 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1,4):
-                    if self.game.board[row - y][column - y] == self.sym:
+                    if self.game.board[row - y][column - y] == self.playerSymbol:
                         numMySyms += 1
                     elif self.game.board[row - y][column - y] != '-':
                         numNotMySyms += 1
@@ -329,12 +326,12 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numMySyms = 0
                 numNotMySyms = 0
                 for y in range(1, 3):
-                    if self.game.board[row - y][column - y] == self.sym:
+                    if self.game.board[row - y][column - y] == self.playerSymbol:
                         numMySyms += 1
                     elif self.game.board[row - y][column - y] != '-':
                         numNotMySyms += 1
 
-                if self.game.board[row + 1][column + 1] == self.sym:
+                if self.game.board[row + 1][column + 1] == self.playerSymbol:
                     numMySyms += 1
                 elif self.game.board[row + 1][column + 1] != '-':
                     numNotMySyms += 1
@@ -350,7 +347,7 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numNotMySyms = 0
 
                 for y in range(1, 4):
-                    if self.game.board[row + y][column + y] == self.sym:
+                    if self.game.board[row + y][column + y] == self.playerSymbol:
                         numMySyms += 1
                     elif self.game.board[row + y][column + y] != '-':
                         numNotMySyms += 1
@@ -366,13 +363,13 @@ class Connect4Player(threading.Thread):                 #inherits from thread so
                 numNotMySyms = 0
 
                 for y in range(1, 3):
-                    if self.game.board[row + y][column + y] == self.sym:
+                    if self.game.board[row + y][column + y] == self.playerSymbol:
                         numMySyms += 1
                         
                     elif self.game.board[row + y][column + y] != '-':
                         numNotMySyms += 1
                         
-                if self.game.board[row - 1][column - 1] == self.sym:
+                if self.game.board[row - 1][column - 1] == self.playerSymbol:
                     numMySyms += 1
                 elif self.game.board[row][column - 1] != '-':
                     numNotMySyms += 1
@@ -404,36 +401,37 @@ if __name__ == "__main__":
     newGame = connect4.Connect4Game()                   #initialize a game
 
         #test code 1:
-##    player1 = Connect4Player(newGame, 0)              #this code is for pitting the agent in 100 games against the benchmark random player
-##    player2 = connect4PlayerRandom.Connect4PlayerRandom(newGame, 1)
-##    player1.start()
-##    player2.start()
-##
-##    for x in range(100):
-##        while newGame.winner == None:
-##            currentTurn = newGame.turn
-##        try:
-##            print("Winner: Player %d" % newGame.winner)
-##        except:
-##            print("Winner: Player %s" % newGame.winner)
-##        newGame = connect4.Connect4Game()
-##        player1.game = newGame
-##        player2.game = newGame
-##
-##    print(player1.wins)
+    player1 = Connect4Player()              #this code is for pitting the agent in 100 games against the benchmark random player
+    player2 = Connect4PlayerRandom()
+    newGame.addPlayer(player1)
+    newGame.addPlayer(player2)
+    player1.start()
+
+    for x in range(100):
+        while newGame.winner == None:
+            currentTurn = newGame.turn
+        try:
+            print("Winner: Player %d" % newGame.winner)
+        except:
+            print("Winner: Player %s" % newGame.winner)
+        newGame = connect4.Connect4Game()
+        newGame.addPlayer(player1)
+        newGame.addPlayer(player2)
+
+    print(player1.wins)
 
 ##------------------------------------------------------------------
     #test code: 2
-    player1 = Connect4Player(newGame, 0)            #this code pits you against the agent
-    player1.start()
-    while newGame.winner == None:
-        while newGame.turn == 0:
-            pass
-        time.sleep(.1)
-        print(newGame)
-        move = int(input('\n>>>>'))
-        newGame.makeMove(move - 1)
-    try:
-        print("\nWinner: Player %d" % newGame.winner)
-    except:
-        print('\nDRAW')
+##    player1 = Connect4Player(newGame, 0)            #this code pits you against the agent
+##    player1.start()
+##    while newGame.winner == None:
+##        while newGame.turn == 0:
+##            pass
+##        time.sleep(.1)
+##        print(newGame)
+##        move = int(input('\n>>>>'))
+##        newGame.makeMove(move - 1)
+##    try:
+##        print("\nWinner: Player %d" % newGame.winner)
+##    except:
+##        print('\nDRAW')

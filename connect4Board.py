@@ -8,17 +8,18 @@ class Connect4Board():
         self.lastMove = []
 
     def updateBoard(self, column, sym):
+        self.checkIfInvalidMove(column)
         row = self.calculateLastMovesRow(column)
         self.rows[row][column] = sym
         self.lastMove = [row, column]
 
     def checkIfInvalidMove(self, column):
         if column > 5 or column < 0 or not isinstance(column, int):                     
-            print('Invalid move: %d by current player, not in column range' % (column))
+            raise InvalidMoveError('Invalid move: %d by current player, not in column range' % (column))
             return True
 
         if self.rows[0][column] != '-':
-            print('Invalid move %d by current player, not an open column' % (column))
+            raise InvalidMoveError('Invalid move %d by current player, not an open column' % (column))
             return True
         
         return False
@@ -124,7 +125,6 @@ class Connect4Board():
         sym = self.rows[self.lastMove[0]][self.lastMove[1]]
         for i in range(1, 4):
             if self.rows[self.lastMove[0] + rowOffset * i][self.lastMove[1] + columnOffset * i] != sym or sym == '-':
-                print()
                 return False
         return True
             
@@ -156,6 +156,11 @@ class Connect4Board():
             boardStr += '\n'
         boardStr += "[ 1    2    3    4    5    6 ]\n\n"
         return boardStr 
+
+class InvalidMoveError(Exception):
+
+    def __init__(self, message):
+        super(InvalidMoveError, self).__init__(message)
 
 if __name__ == "__main__":
     newBoard = Connect4Board()
