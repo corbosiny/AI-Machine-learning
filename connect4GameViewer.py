@@ -1,34 +1,57 @@
 import threading
+from connect4 import Connect4Game
+from connect4PlayerRandom import Connect4PlayerRandom
 from tkinter import *
 
 
 class Connect4GameViewer(threading.Thread):
 
-    def __init__(self, gameMaster):
-        self.windows = []
-        self.textBoxes = []
-        self.gameMaster = gameMaster
+    def __init__(self, game):
+        self.game = game
         super(Connect4GameViewer, self).__init__()
 
     def run(self):
+        self.initDisplay()
+
+        while True:
+            self.updateGame()
+            self.root.update()
+
+
+    def initDisplay(self):
         self.root = Tk()
-        self.windows = [Toplevel(self.root) for game in range(len(self.gameMaster.games))]
-        self.textBoxes = [Text(self.windows[x], height= 10,width= 30) for x in range(len(self.windows))]
-        for textBox in self.textBoxes:
-            textBox.pack()
-        mainloop()
+        self.textBox = Text(self.root, height= 10,width= 30)
+        self.textBox.pack()
     
-    def updateGames(self):
-        for x, textBox in enumerate(self.textBoxes):
-            textBox.delete(1.0, END)
-            textBox.insert(CURRENT, str(self.gameMaster.games[x]))
+    def updateGame(self):
+        self.textBox.config(state= NORMAL)
+        self.textBox.delete(1.0, END)
+        self.textBox.insert(CURRENT, str(self.game))
+        self.textBox.config(state= DISABLED)            #prevents viewer from writing in the textbox
+
 
     def close(self):
         self.root.destroy()
         self.root.quit()
         
-if __name__ == "__main__":
-    viewer = Connect4GameViewer(games)
-    viewer.start()
 
+
+
+
+
+
+if __name__ == "__main__":
+    newGame = Connect4Game()
+    viewer = Connect4GameViewer(newGame)
+    viewer.start()
+    player1 = Connect4PlayerRandom()
+    player2 = Connect4PlayerRandom()
+    while True:
+        newGame.addPlayer(player1)
+        newGame.addPlayer(player2)
+
+        while newGame.gameIsNotOver():
+            pass
+
+        newGame.prepareForNewGame()
 

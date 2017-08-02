@@ -6,9 +6,9 @@ class Connect4Game():
 
     playerSymbols = ['X','O']
 
-    def __init__(self, viewGame = False):
+    def __init__(self, printGame = False):
         self.board = Connect4Board()
-        self.viewGame = viewGame
+        self.printGame = printGame
         self.players = []
         
         self.prepareForNewGame()
@@ -93,7 +93,7 @@ class Connect4Game():
         self.displayBoard()
 
     def displayBoard(self):
-        if self.viewGame:
+        if self.printGame:
             print(self.board)
         
         

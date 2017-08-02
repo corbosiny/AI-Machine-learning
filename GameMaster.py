@@ -1,43 +1,46 @@
 import random
+import threading
 from connect4GameViewer import Connect4GameViewer
 from connect4 import Connect4Game
 from connect4PlayerRandom import Connect4PlayerRandom
 
-class GameMaster():
+class GameMaster(threading.Thread):
 
 
-    def __init__(self, gamePool, players, spectateGames = False):
-        self.games = gamePool
+    def __init__(self, gamePool, players, continueTournament = True):
         self.openGamePool = gamePool
         self.closedGamePool = []
+        
         self.waitingPlayers = players
         self.playersInGame = []
-        self.startAllGames()
+
+        self.continueTournament = continueTournament
+        super(GameMaster, self).__init__()
         
-        self.spectateGames = spectateGames
-        self.initTournamentViewer()
-        self.runGames = True
-        self.manageGames()
-        
-    def manageGames(self):
-        while self.runGames:
-            self.waitForOpenGame()
-            player1, player2 = self.pickTwoPlayers() 
-            self.startGame(self.openGamePool[0], player1, player2)
+    def run(self):
+        while True:
+            self.initTournamentViewer()
+            while self.continueTournament:
+                self.startAllGames()
+                self.waitForAllGamesToFinish()
+
+            self.shutOffTournamentViewer()
+            while not self.continueTournament():
+                pass
+
 
     def startAllGames(self):
-        while len(self.openGamePool) != 0 and len(self.waitingPlayers) > 2:
-            player1, player2 = self.pickTwoPlayers()            
+        while len(self.openGamePool) != 0 and len(self.waitingPlayers) >= 2:
+            player1, player2 = self.pickTwoWaitingPlayers()            
             self.startGame(self.openGamePool[0], player1, player2)
 
             
-    def waitForOpenGame(self):
-        while len(self.openGamePool) == 0 or len(self.waitingPlayers) < 2:
-            self.tournamentViewer.updateGames()
+    def waitForAllGamesToFinish(self):
+        while len(self.closedGamePool) != 0:
             self.resetFinishedGames()
 
-    def pickTwoPlayers(self):
-        tempPlayerList = [x for x in self.waitingPlayers]
+    def pickTwoWaitingPlayers(self):
+        tempPlayerList = [player for player in self.waitingPlayers]
         choiceOne = random.randint(0, len(tempPlayerList) - 1)
         player1 = tempPlayerList.pop(choiceOne)
         choiceTwo = random.randint(0, len(tempPlayerList) - 1)
@@ -65,11 +68,13 @@ class GameMaster():
 
 
     def initTournamentViewer(self):
-        self.tournamentViewer = Connect4GameViewer(self)
-        self.tournamentViewer.start()
-        while len(self.tournamentViewer.textBoxes) != len(self.games):
-            pass
+        self.gameViewers = [Connect4GameViewer(x) for x in self.openGamePool]
+        for viewer in self.gameViewers:
+            viewer.start()
 
+    def shutOffTournamentViewer(self):
+        for viewer in self.gameViewers:
+            viewer.close()
 
     def addNewPlayerToPool(self, newPlayer):
         self.waitingPlayers.append(newPlayer)
@@ -99,7 +104,17 @@ class GameMaster():
         self.playersInGame.remove(player)
     
 if __name__ == "__main__":
-    players = [Connect4PlayerRandom() for x in range(10)]
-    games = [Connect4Game() for x in range(5)]
+    players = [Connect4PlayerRandom() for x in range(12)]
+    games = [Connect4Game() for x in range(6)]
     master = GameMaster(games, players)
+    master.start()
+
+    while True:
+        command = input(str(">>"))
+        if command == "pause":
+            print('pausing tournament after this round')
+            master.continueTournament = False
+        elif command == "start":
+            print('resuming tournament, staring next round')
+            master.continueTournament = True
     
