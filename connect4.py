@@ -1,6 +1,7 @@
 import sys
 from connect4Board import *
 import connect4PlayerRandom
+from connect4HumanPlayer import Connect4HumanPlayer
 
 class Connect4Game():
 
@@ -51,12 +52,9 @@ class Connect4Game():
 
 
     def addPlayer(self, player):
-        try:
-            player.playerNum = self.numPlayers
-            player.playerSymbol = Connect4Game.playerSymbols[self.numPlayers]
-            player.game = self
-        except:                 #triggers for human players
-            pass
+        player.playerNum = self.numPlayers
+        player.playerSymbol = Connect4Game.playerSymbols[self.numPlayers]
+        player.game = self
         
         self.players.append(player)
         self.numPlayers += 1
@@ -93,10 +91,8 @@ class Connect4Game():
 
 
     def awardPlayerTheWin(self, playerNum):
-        try:
-            self.players[playerNum].wins += 1
-        except:             #will trigger for human players
-            pass
+        self.players[playerNum].wins += 1
+
 
 
 
@@ -115,23 +111,15 @@ class Connect4Game():
 if __name__ == "__main__":              
     newGame = Connect4Game(True)
 
-##    print(newGame)                            #uncomment for hotset game test
-##    while newGame.winner == None:
-##            move = int(input('\n>> '))
-##            newGame.makeMove(move - 1)
-##            print(newGame)
-
+    HumanPlayer = Connect4HumanPlayer()
     AIplayer = connect4PlayerRandom.Connect4PlayerRandom()      #uncomment to play against random AI
 
     while True:
-        newGame.addPlayer("Corey")
+        newGame.addPlayer(HumanPlayer)
         newGame.addPlayer(AIplayer)
-        
-        while newGame.winner == None:
-            while newGame.turn != 0:
-                pass
-            move = int(input('\n>> '))
-            newGame.makeMove(move - 1)
+
+        while newGame.gameIsNotOver():
+            pass
         
         newGame.prepareForNewGame()
     

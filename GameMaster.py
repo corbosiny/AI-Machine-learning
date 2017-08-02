@@ -118,6 +118,6 @@ if __name__ == "__main__":
             print('resuming tournament, staring next round')
             master.continueTournament = True
         elif command == "view wins":
-            for player in master.waitingPlayers + master.playersInGame:
-                print(player.wins)
+            for num, player in enumerate(master.waitingPlayers + master.playersInGame):
+                print("Player %d: " % num, player.wins)
     

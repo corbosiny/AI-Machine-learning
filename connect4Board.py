@@ -157,6 +157,7 @@ class Connect4Board():
         boardStr += "[ 1    2    3    4    5    6 ]\n\n"
         return boardStr 
 
+
 class InvalidMoveError(Exception):
 
     def __init__(self, message):
