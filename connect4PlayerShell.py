@@ -2,7 +2,9 @@ import connect4
 import threading
 
 class Connect4PlayerShell(threading.Thread):
-    def __init__(self):
+
+    def __init__(self, playerID = None):
+        self.playerID = playerID
         self.wins = 0
         self.game = None
         super(Connect4PlayerShell, self).__init__()    #calling thread constructor

@@ -24,7 +24,6 @@ class GameMaster(threading.Thread):
                 self.startAllGames()
                 self.waitForAllGamesToFinish()
 
-            #self.shutOffTournamentViewer()
             while not self.continueTournament:
                 pass
 
@@ -104,7 +103,7 @@ class GameMaster(threading.Thread):
         self.playersInGame.remove(player)
     
 if __name__ == "__main__":
-    players = [Connect4PlayerRandom() for x in range(12)]
+    players = [Connect4PlayerRandom(x) for x in range(12)]
     games = [Connect4Game() for x in range(6)]
     master = GameMaster(games, players)
     master.start()
@@ -118,6 +117,7 @@ if __name__ == "__main__":
             print('resuming tournament, staring next round')
             master.continueTournament = True
         elif command == "view wins":
-            for num, player in enumerate(master.waitingPlayers + master.playersInGame):
-                print("Player %d: " % num, player.wins)
+            for player in master.waitingPlayers + master.playersInGame:
+                print("Player %d: " % player.playerID, player.wins)
     
+        

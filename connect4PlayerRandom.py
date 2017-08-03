@@ -6,8 +6,8 @@ import time
 
 class Connect4PlayerRandom(Connect4PlayerShell):   #the template most of our functionality comes from
 
-    def __init__(self):
-        super(Connect4PlayerRandom, self).__init__()    #calling superclass constructor
+    def __init__(self, playerID = None):
+        super(Connect4PlayerRandom, self).__init__(playerID)    #calling superclass constructor
         self.start()
 
 
