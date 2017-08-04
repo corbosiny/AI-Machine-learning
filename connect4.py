@@ -1,79 +1,69 @@
 import sys
+import threading
 from connect4Board import *
 import connect4PlayerRandom
 from connect4HumanPlayer import Connect4HumanPlayer
 
-class Connect4Game():
+class Connect4Game(threading.Thread):
 
     playerSymbols = ['X','O']
 
-    def __init__(self, printGameAfterMove = False):
+    def __init__(self, displayGame = False):
+        
+        self.displayGame = displayGame
+        self.initializeGame()
+        super(Connect4Game, self).__init__()
+
+
+    def initializeGame(self):
         self.board = Connect4Board()
-        self.printGameAfterMove = printGameAfterMove
         self.players = []
-        
-        self.prepareForNewGame()
-        
-    def prepareForNewGame(self):        
-        self.waitForPlayersToLeaveGame()
-        self.board.clearBoard()
         self.resetGameState()
-        self.displayBoard()
-        
-    def waitForPlayersToLeaveGame(self):
-        for player in self.players:
-            self.waitForPlayerToLeaveGame(player)
 
-    def waitForPlayerToLeaveGame(self, player):
-        if self.isHumanPlayer(player):              #human players are represetned as strings
-            return
-        
-        self.turn = player.playerNum
-        while player.game is self:
-            pass
-
-    def isHumanPlayer(self, player):
-        return isinstance(player, str)
-
-                  
     def resetGameState(self):
-        self.resetPlayers()
         self.turn = 0
         self.numMoves = 0
         self.winner = None
-    
-    def resetPlayers(self):
-        self.numPlayers = 0
-        self.players = []
+        self.gameOver = False
 
 
-
-
-
-
-    def addPlayer(self, player):
-        player.playerNum = self.numPlayers
-        player.playerSymbol = Connect4Game.playerSymbols[self.numPlayers]
-        player.game = self
         
-        self.players.append(player)
-        self.numPlayers += 1
+
+    def run(self):
+        while True:
+            self.waitForPlayersToJoin()
+            self.playGame()
+            self.waitToBeReset()
+
+    def waitForPlayersToJoin(self):
+        while len(self.players) < 2:
+            pass
 
 
+    def playGame(self):
+        while self.winner is None:
 
-    
+            if self.displayGame:
+                print(self)
+
+            columnOfMove = self.players[self.turn].generateMove()
+            self.makeMove(columnOfMove)
+
+        
+    def gameIsNotOver(self):
+        return self.gameOver == False
+
 
     def makeMove(self, column):
         currentPlayerSymbol = Connect4Game.playerSymbols[self.turn]
         try:
             self.board.updateBoard(column, currentPlayerSymbol)
             self.updateGameState()
-            self.displayBoard()
         except InvalidMoveError as e:
             print(e)
             return
-        
 
+        
     def updateGameState(self):
         self.numMoves += 1
         self.winner = self.checkIfGameOver()
@@ -82,24 +72,44 @@ class Connect4Game():
 
     def checkIfGameOver(self):
         if self.board.checkWin():
+            self.players[self.turn].wins += 1
             return self.turn 
         elif self.numMoves == len(self.board) * len(self.board[0]):     
             return "DRAW"
         else:
             return None
-
-
-
-
-
-
-    def displayBoard(self):
-        if self.printGameAfterMove:
-            print(self.board)
         
+
+
+    def waitToBeReset(self):
+        self.gameOver = True
+        while self.gameOver:
+            pass
+    
+    
+    def prepareForNewGame(self):
+        self.removePlayersFromGame()
+        self.board.clearBoard()
+        self.resetGameState()
         
-    def gameIsNotOver(self):
-        return self.winner == None
+    def removePlayersFromGame(self):
+        listOfPlayers = [player for player in self.players]
+        for player in listOfPlayers:
+            self.removePlayerFromGame(player)
+
+    def removePlayerFromGame(self, player):
+        player.game = None
+        self.players.remove(player)
+
+
+
+
+    def addPlayer(self, player):
+        newPlayersSymbol = Connect4Game.playerSymbols[len(self.players)]
+        self.players.append(player)
+        return newPlayersSymbol
+
+        
     
     def __str__(self):         
         return str(self.board)
@@ -109,13 +119,13 @@ if __name__ == "__main__":
 
     HumanPlayer = Connect4HumanPlayer()
     AIplayer = connect4PlayerRandom.Connect4PlayerRandom()      #uncomment to play against random AI
-
+    newGame.start()
     while True:
-        newGame.addPlayer(HumanPlayer)
-        newGame.addPlayer(AIplayer)
+        HumanPlayer.joinGame(newGame)
+        AIplayer.joinGame(newGame)
 
         while newGame.gameIsNotOver():
             pass
-        
+
         newGame.prepareForNewGame()
-    
+        

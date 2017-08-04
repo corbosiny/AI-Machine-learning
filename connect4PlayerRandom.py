@@ -8,7 +8,6 @@ class Connect4PlayerRandom(Connect4PlayerShell):   #the template most of our fun
 
     def __init__(self, playerID = None):
         super(Connect4PlayerRandom, self).__init__(playerID)    #calling superclass constructor
-        self.start()
 
 
     def generateMove(self):
@@ -20,16 +19,19 @@ class Connect4PlayerRandom(Connect4PlayerShell):   #the template most of our fun
     
 if __name__ == "__main__":                              #test code that pits two random players against one another
     newGame = connect4.Connect4Game(True)
+    
+    
+    player1 = Connect4PlayerRandom()
+    player2 = Connect4PlayerRandom()
 
+    newGame.start()
     while True:
-        newGame.displayBoard()
-        player1 = Connect4PlayerRandom()
-        player2 = Connect4PlayerRandom()
-        newGame.addPlayer(player1)
-        newGame.addPlayer(player2)
+        player1.joinGame(newGame)
+        player2.joinGame(newGame)
 
-        while newGame.winner == None:
+        while newGame.gameIsNotOver():
             pass
 
-        newGame.players[newGame.winner].wins += 1
+        print(player1.wins)
+        print(player2.wins)
         newGame.prepareForNewGame()

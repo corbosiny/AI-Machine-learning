@@ -8,10 +8,10 @@ class GameMaster(threading.Thread):
 
 
     def __init__(self, gamePool, players, continueTournament = True):
-        self.openGamePool = gamePool
+        self.openGamePool = [game for game in gamePool]
         self.closedGamePool = []
         
-        self.waitingPlayers = players
+        self.waitingPlayers = [player for player in players]
         self.playersInGame = []
 
         self.continueTournament = continueTournament
@@ -28,15 +28,17 @@ class GameMaster(threading.Thread):
                 pass
 
 
+    def initTournamentViewer(self):
+        self.gameViewers = [Connect4GameViewer(x) for x in self.openGamePool]
+        for viewer in self.gameViewers:
+            viewer.start()
+
+
     def startAllGames(self):
         while len(self.openGamePool) != 0 and len(self.waitingPlayers) >= 2:
             player1, player2 = self.pickTwoWaitingPlayers()            
             self.startGame(self.openGamePool[0], player1, player2)
 
-            
-    def waitForAllGamesToFinish(self):
-        while len(self.closedGamePool) != 0:
-            self.resetFinishedGames()
 
     def pickTwoWaitingPlayers(self):
         tempPlayerList = [player for player in self.waitingPlayers]
@@ -46,10 +48,12 @@ class GameMaster(threading.Thread):
         player2 = tempPlayerList.pop(choiceTwo)
         return player1, player2
 
+
     def startGame(self, game, player1, player2):
         self.setGameToClosed(game)
         self.addPlayerToGame(game, player1)
         self.addPlayerToGame(game, player2)
+
 
     def setGameToClosed(self, game):
         self.closedGamePool.append(game)
@@ -57,19 +61,21 @@ class GameMaster(threading.Thread):
         
     def addPlayerToGame(self, game, player):
         self.setPlayerStatusToInGame(player)
-        game.addPlayer(player)
+        player.joinGame(game)
 
 
     def setPlayerStatusToInGame(self, player):
         self.playersInGame.append(player)
         self.waitingPlayers.remove(player)
+     
+            
+    def waitForAllGamesToFinish(self):
+        while len(self.closedGamePool) != 0:
+            self.resetFinishedGames()
+
         
 
 
-    def initTournamentViewer(self):
-        self.gameViewers = [Connect4GameViewer(x) for x in self.openGamePool]
-        for viewer in self.gameViewers:
-            viewer.start()
 
     def shutOffTournamentViewer(self):
         for viewer in self.gameViewers:
@@ -78,33 +84,43 @@ class GameMaster(threading.Thread):
     def addNewPlayerToPool(self, newPlayer):
         self.waitingPlayers.append(newPlayer)
 
-    def removePlayerFromPool(self, player):
-        while player not in self.waitingPlayers:
-            pass
-        self.waitingPlayers.remove(player)
+
     
 
     def resetFinishedGames(self):
         for game in self.closedGamePool:
             if not game.gameIsNotOver():
                 self.resetFinishedGame(game)
-
+        
     def resetFinishedGame(self, game):
+        players = [player for player in game.players]
+        self.setGameStatusToOpen(game)
+        self.setPlayersStatusToWaiting(players)
+
+
+    def setGameStatusToOpen(self, game):
         self.closedGamePool.remove(game)
         self.openGamePool.append(game)
-        players = game.players
         game.prepareForNewGame()
-        self.setPlayerStatusToWaiting(players[0])
-        self.setPlayerStatusToWaiting(players[1])
         
+    def setPlayersStatusToWaiting(self, players):
+        for player in players:
+            self.setPlayerStatusToWaiting(player)
 
     def setPlayerStatusToWaiting(self, player):
         self.waitingPlayers.append(player)
         self.playersInGame.remove(player)
-    
+        player.prepareForNewGame()
+
+
+        
 if __name__ == "__main__":
-    players = [Connect4PlayerRandom(x) for x in range(12)]
-    games = [Connect4Game() for x in range(6)]
+    players = [Connect4PlayerRandom(x) for x in range(36)]
+    games = [Connect4Game() for x in range(18)]
+
+    for game in games:
+        game.start()
+    
     master = GameMaster(games, players)
     master.start()
 
@@ -117,7 +133,7 @@ if __name__ == "__main__":
             print('resuming tournament, staring next round')
             master.continueTournament = True
         elif command == "view wins":
-            for player in master.waitingPlayers + master.playersInGame:
+            for player in players:
                 print("Player %d: " % player.playerID, player.wins)
     
         
