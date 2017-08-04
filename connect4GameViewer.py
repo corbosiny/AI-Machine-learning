@@ -15,6 +15,7 @@ class Connect4GameViewer(threading.Thread):
 
         while True:
             self.updateGame()
+            self.root.update_idletasks()
             self.root.update()
 
 

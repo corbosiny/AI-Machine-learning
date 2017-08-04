@@ -16,7 +16,7 @@ class Connect4PlayerShell():
         self.playerSymbol = game.addPlayer(self)
         self.game = game
 
-    def generateMove(self):
+    def generateMove(self, board):
         pass                #decendant classes will fill this in
 
 

@@ -7,7 +7,7 @@ class Connect4HumanPlayer(Connect4PlayerShell):
         super(Connect4HumanPlayer, self).__init__()
 
 
-    def generateMove(self):
+    def generateMove(self, board):
         try:
             move = int(input(">>")) - 1
             return move

@@ -10,7 +10,7 @@ class Connect4PlayerRandom(Connect4PlayerShell):   #the template most of our fun
         super(Connect4PlayerRandom, self).__init__(playerID)    #calling superclass constructor
 
 
-    def generateMove(self):
+    def generateMove(self, board):
         move = random.randint(0, 5)                     
         return move
 

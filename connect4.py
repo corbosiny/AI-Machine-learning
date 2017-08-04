@@ -46,7 +46,7 @@ class Connect4Game(threading.Thread):
             if self.displayGame:
                 print(self)
 
-            columnOfMove = self.players[self.turn].generateMove()
+            columnOfMove = self.players[self.turn].generateMove(self.board)
             self.makeMove(columnOfMove)
 
         
