@@ -15,6 +15,7 @@ class GameMaster(threading.Thread):
         self.playersInGame = []
 
         self.continueTournament = continueTournament
+        self.roundsRun = 0
         super(GameMaster, self).__init__()
         
     def run(self):
@@ -35,6 +36,7 @@ class GameMaster(threading.Thread):
 
 
     def startAllGames(self):
+        self.roundsRun += 1
         while len(self.openGamePool) != 0 and len(self.waitingPlayers) >= 2:
             player1, player2 = self.pickTwoWaitingPlayers()            
             self.startGame(self.openGamePool[0], player1, player2)
@@ -135,5 +137,7 @@ if __name__ == "__main__":
         elif command == "view wins":
             for player in players:
                 print("Player %d: " % player.playerID, player.wins)
+        elif command == "view rounds":
+            print("Rounds Run: %d" % master.roundsRun)
     
         
