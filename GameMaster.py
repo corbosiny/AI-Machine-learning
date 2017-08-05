@@ -3,6 +3,7 @@ import threading
 from connect4GameViewer import Connect4GameViewer
 from connect4 import Connect4Game
 from connect4PlayerRandom import Connect4PlayerRandom
+from connect4ProbabilityPlayer import Connect4ProbabilityPlayer
 
 class GameMaster(threading.Thread):
 
@@ -117,8 +118,10 @@ class GameMaster(threading.Thread):
 
         
 if __name__ == "__main__":
-    players = [Connect4PlayerRandom(x) for x in range(36)]
-    games = [Connect4Game() for x in range(18)]
+    players = [Connect4PlayerRandom(x) for x in range(11)]
+    players.append(Connect4ProbabilityPlayer(11))
+    
+    games = [Connect4Game() for x in range(6)]
 
     for game in games:
         game.start()
@@ -135,8 +138,10 @@ if __name__ == "__main__":
             print('resuming tournament, staring next round')
             master.continueTournament = True
         elif command == "view wins":
-            for player in players:
-                print("Player %d: " % player.playerID, player.wins)
+            playerIDs = [player.playerID for player in players]
+            currentNumberOfWins = [player.wins for player in players]
+            for playerID, numberOfWins in zip(playerIDs, currentNumberOfWins):
+                print("Player %d: %d" % (playerID, numberOfWins))
         elif command == "view rounds":
             print("Rounds Run: %d" % master.roundsRun)
     

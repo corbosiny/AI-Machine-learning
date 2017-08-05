@@ -65,18 +65,16 @@ class Connect4Game(threading.Thread):
         
     def updateGameState(self):
         self.numMoves += 1
-        self.winner = self.checkIfGameOver()
+        self.checkIfGameOver()
         self.turn = int(not self.turn)
 
 
     def checkIfGameOver(self):
         if self.board.checkWin():
-            self.players[self.turn].wins += 1
-            return self.turn 
+            self.winner = self.players[self.turn]
+            self.winner.wins += 1
         elif self.numMoves == len(self.board) * len(self.board[0]):     
-            return "DRAW"
-        else:
-            return None
+            self.winner = "DRAW"
         
 
 
@@ -94,11 +92,7 @@ class Connect4Game(threading.Thread):
     def removePlayersFromGame(self):
         listOfPlayers = [player for player in self.players]
         for player in listOfPlayers:
-            self.removePlayerFromGame(player)
-
-    def removePlayerFromGame(self, player):
-        player.game = None
-        self.players.remove(player)
+            self.players.remove(player)
 
 
 
