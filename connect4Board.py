@@ -14,12 +14,12 @@ class Connect4Board():
         self.lastMove = [row, column]
 
     def checkIfInvalidMove(self, column):
-        if column > 5 or column < 0 or not isinstance(column, int):                     
-            raise InvalidMoveError('Invalid move: %d by current player, not in column range' % (column))
+        if column > 5 or column < 0:                     
+            raise InvalidMoveError('Invalid move %d, not in column range' % (column))
             return True
 
         if self.rows[0][column] != '-':
-            raise InvalidMoveError('Invalid move %d by current player, not an open column' % (column))
+            raise InvalidMoveError('Invalid move %d, not an open column' % (column))
             return True
         
         return False
@@ -30,7 +30,7 @@ class Connect4Board():
             row -= 1
         return row
 
-    def checkWin(self):                                    
+    def checkWin(self):
         if self.checkHorizontal():
             return True
         if self.checkVertical():
@@ -122,9 +122,7 @@ class Connect4Board():
 
 
     def checkThreeInARow(self, rowOffset, columnOffset):
-        if sym is None:
-            sym = self.rows[self.lastMove[0]][self.lastMove[1]]
-
+        sym = self.rows[self.lastMove[0]][self.lastMove[1]]
         for i in range(1, 4):
             if self.rows[self.lastMove[0] + rowOffset * i][self.lastMove[1] + columnOffset * i] != sym or sym == '-':
                 return False
@@ -132,9 +130,7 @@ class Connect4Board():
             
     
     def checkIfInMiddleOfFour(self, rowOffset, columnOffset):
-        if sym is None:
-            sym = self.rows[self.lastMove[0]][self.lastMove[1]]
-
+        sym = self.rows[self.lastMove[0]][self.lastMove[1]]
         for i in range(-1, 3):
             if self.rows[self.lastMove[0] + rowOffset * i][self.lastMove[1] + columnOffset * i] != sym or sym == '-':
                 return False

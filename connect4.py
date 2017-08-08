@@ -60,7 +60,8 @@ class Connect4Game(threading.Thread):
         try:
             self.board.updateBoard(column, currentPlayerSymbol)
             self.updateGameState()
-        except InvalidMoveError as e:
+        except InvalidMoveError as error:
+            print("Player %d: %s" % (self.players[self.turn].playerID, error))
             return
 
         
@@ -111,8 +112,8 @@ class Connect4Game(threading.Thread):
 if __name__ == "__main__":              
     newGame = Connect4Game(True)
 
-    HumanPlayer = Connect4HumanPlayer()
-    AIplayer = connect4PlayerRandom.Connect4PlayerRandom()      #uncomment to play against random AI
+    HumanPlayer = Connect4HumanPlayer(1)
+    AIplayer = connect4PlayerRandom.Connect4PlayerRandom(2)      #uncomment to play against random AI
     newGame.start()
     while True:
         HumanPlayer.joinGame(newGame)
