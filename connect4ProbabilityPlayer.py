@@ -1,6 +1,5 @@
 import connect4                                         
-import random                                           
-import time                                             
+import random                                                                                       
 import math                                            
 from connect4PlayerShell import Connect4PlayerShell
 

@@ -7,6 +7,7 @@ from connect4HumanPlayer import Connect4HumanPlayer
 class Connect4Game(threading.Thread):
 
     playerSymbols = ['X','O']
+    emptySpotSymbol = '-'
 
     def __init__(self, displayGame = False):
         

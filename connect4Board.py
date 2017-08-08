@@ -122,7 +122,9 @@ class Connect4Board():
 
 
     def checkThreeInARow(self, rowOffset, columnOffset):
-        sym = self.rows[self.lastMove[0]][self.lastMove[1]]
+        if sym is None:
+            sym = self.rows[self.lastMove[0]][self.lastMove[1]]
+
         for i in range(1, 4):
             if self.rows[self.lastMove[0] + rowOffset * i][self.lastMove[1] + columnOffset * i] != sym or sym == '-':
                 return False
@@ -130,7 +132,9 @@ class Connect4Board():
             
     
     def checkIfInMiddleOfFour(self, rowOffset, columnOffset):
-        sym = self.rows[self.lastMove[0]][self.lastMove[1]]
+        if sym is None:
+            sym = self.rows[self.lastMove[0]][self.lastMove[1]]
+
         for i in range(-1, 3):
             if self.rows[self.lastMove[0] + rowOffset * i][self.lastMove[1] + columnOffset * i] != sym or sym == '-':
                 return False
