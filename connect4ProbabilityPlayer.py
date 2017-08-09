@@ -156,7 +156,7 @@ class Connect4ProbabilityPlayer(Connect4PlayerShell):
 
     
     def calculateMoveScore(self, numberOfMyPieces, numberOfOpponentPieces):
-        return math.exp(numberOfMyPieces - 2 * numberOfOpponentPieces)
+        return math.exp(numberOfMyPieces -  numberOfOpponentPieces)
 
 
     def convertScoresToProbability(self, movesAndScores):

@@ -61,7 +61,6 @@ class Connect4Game(threading.Thread):
             self.board.updateBoard(column, currentPlayerSymbol)
             self.updateGameState()
         except InvalidMoveError as error:
-            print("Player %d: %s" % (self.players[self.turn].playerID, error))
             return
 
         
