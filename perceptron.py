@@ -16,3 +16,5 @@ class Perceptron():
     def activationFunction(self, inpt):
         return math.exp(inpt) / (math.exp(inpt) + 1)
 
+
+    
