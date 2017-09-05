@@ -2,6 +2,8 @@ import numpy as np
 import math
 import random
 
+#THIS IS STILL UNDER CONSTRUCTION AND IS NOT WORKING YET!!!!!
+
 class StochasticGradientDescent():
 
     def __init__(alpha, weights = None, powers = None):
