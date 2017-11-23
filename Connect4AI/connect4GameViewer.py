@@ -34,6 +34,7 @@ class Connect4GameViewer(threading.Thread):
     def close(self):
         self.root.destroy()
         self.root.quit()
+
         
 
 

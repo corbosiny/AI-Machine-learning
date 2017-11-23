@@ -118,8 +118,8 @@ class GameMaster(threading.Thread):
 
         
 if __name__ == "__main__":
-    players = [Connect4PlayerRandom(x) for x in range(15)]
-    players.append(Connect4ProbabilityPlayer(15))
+    players = [Connect4PlayerRandom(x) for x in range(16)]
+    players.append(Connect4ProbabilityPlayer(16))
     
     games = [Connect4Game() for x in range(8)]
 
