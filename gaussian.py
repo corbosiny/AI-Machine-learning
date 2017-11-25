@@ -3,7 +3,6 @@ import math
 import random
 import matplotlib.pyplot as plt
 from matrix import Matrix    #uses this for the incoming filtering ability
-from PIL import Image #used for upcoming image filtering
 
 
 #the filter function that takes in image pixels isnt working yet, everything else is
@@ -59,42 +58,7 @@ class Gaussian():
             for column in range(kernel.columns):
                 scores[row][column] /= total
         return scores
-    
-    def applyKernel(self, kernel):                     #still in progress, applying a filter kernel to a matrix of pixels
-        if not isinstance(kernel, Matrix):
-            raise ValueError("Kernel must be a matrix")
 
-        if not isinstance(guass, Gaussian):
-            raise ValueError("A Guassian object must be entered")
-
-        scores = self.calculateWeights(kernel)
-        total = 0
-        for row in range(scores.rows):
-            for column in range(scores.columns):
-                total += scores[row][column] * kernel[row][column]
-        
-        return total
-
-    def filter(self, pixels, kernelSize, size):  #still in progress, goes over a set of pixels and applys a guassian filter to each pixel
-        width = size[0]
-        height = size[1]
-        center = int(kernelSize / 2)
-        kernel = Matrix.zero(kernelSize, kernelSize)
-        for num, x in enumerate(pixels):
-            for y in range(1, kernelSize + 1):
-                for z in range(1, kernelSize + 1):
-                    try:
-                        kernel[y - 1][z - 1] = pixels[num + (z - center) + (y - center) * width]
-                    except:
-                        print(num)
-                        result = num + (z - center) + (y - center) * width
-                        if num % 720 == 0 or num % 719 == 0:
-                            result -= 2 * (z - center)
-                        if (0 <= num and num <= 179) or (len(pixels) - width <= num and num < len(pixels)):
-                            result -= 2 * (y - center)
-                        kernel[y - 1][z - 1] = pixels[result]
-                        
-            pixels[num] = self.applyKernel(kernel)
             
         
     def plotGaussian(self, numPoints = 100): #used to plot and visualize the gaussian
