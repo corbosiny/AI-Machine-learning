@@ -4,12 +4,14 @@ import random
 class DataSplitter():
 
     def createTestTrainingSplit(sampleData, trainRatio= .5):
-        numTrainingPoints = math.ceil(len(sampleData) * trainRatio)
-        numTestingPoints = math.floor(len(sampleData) * round((1 - trainRatio), 3))
-        trainingData = random.sample(sampleData, numTrainingPoints)
-        sampleData = [x for x in sampleData if x not in trainingData]
-        testingData = random.sample(sampleData, numTestingPoints)
-        return trainingData, testingData
+        trainingSetSize = int(len(sampleData) * trainRatio)
+        trainingSet = []
+        testingSet = list(sampleData)
+        while len(trainingSet) < trainingSetSize:
+            index = random.randrange(len(testingSet))
+            trainingSet.append(testingSet.pop(index))
+            
+        return trainingSet, testingSet
     
     def createOrderedTestTrainingSplit(sampleData, trainRatio):
         numTrainingPoints = math.ceil(len(sampleData) * trainRatio)
@@ -25,10 +27,14 @@ class DataSplitter():
 if __name__ == "__main__":
     nums = range(1, 11)
 
+    trainingSet, testingSet = DataSplitter.createTestTrainingSplit(nums)
+    print(trainingSet)
+    print(testingSet)
+    
     print("OriginalSet: ", [i for i in range(1,11)])
     print("\n")
     for i in range(1, 11):
-        trainingSet, testingSet = DataSplitter.createOrdered5TestTrainingSplit(nums, i / 10.0)
+        trainingSet, testingSet = DataSplitter.createOrderedTestTrainingSplit(nums, i / 10.0)
         print("Ratio: ", i / 10.0)
         print("TrainingSet: ", trainingSet)
         print("TestingSet: ", testingSet)
