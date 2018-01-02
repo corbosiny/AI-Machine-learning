@@ -10,17 +10,16 @@ class StochasticGradientDescent():
     def __init__(self, trainingSet, weights = None, learningRate = .0001):
         self.weights = weights
         self.learningRate = learningRate
-        self.featureScaler = FeatureScaler(trainingSet)
         
         if weights is None:
-            self.initWeights(len(trainingSet[0])) 
+            self.weights = self.initWeights(len(trainingSet[0])) 
         else:
             self.weights = weights
             
         self.trainingSet = self.scaleFeatures(trainingSet)
         self.dataGenerator = self.initDataGenerator()
                 
-    def fit(self, numIterations = 2000000):
+    def fit(self, numIterations = 200000):
         for iteration in range(numIterations):
             adjustments = self.calculateAdjustmentsNeededForModel()
             self.adjustModelWeights(adjustments)
@@ -28,7 +27,7 @@ class StochasticGradientDescent():
         return self.weights
 
     def initWeights(self, numWeights):
-        self.weights = [random.randint(-10, 10) for x in range(numWeights)]
+        return [random.randint(-10, 10) for x in range(numWeights)]
 
 
     def scaleFeatures(self, featureSet):
