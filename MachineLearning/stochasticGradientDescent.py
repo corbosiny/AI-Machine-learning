@@ -7,15 +7,18 @@ from featureScaler import FeatureScaler
 
 class StochasticGradientDescent():
 
-    def __init__(self, trainingSet, weights = None, learningRate = .0001):
+    def __init__(self, trainingSet, weights = None, learningRate = .0001, momentumRate = .5):
         self.weights = weights
         self.learningRate = learningRate
+        self.momentumRate = momentumRate
         
         if weights is None:
             self.weights = self.initWeights(len(trainingSet[0])) 
         else:
             self.weights = weights
-            
+
+        self.momentums = [0 for weight in self.weights]
+        
         self.trainingSet = self.scaleFeatures(trainingSet)
         self.dataGenerator = self.initDataGenerator()
                 
@@ -52,7 +55,9 @@ class StochasticGradientDescent():
         batch = self.getBatch()
         currentAdjustments = []
         for i in range(len(self.weights)):
-            currentAdjustments.append(self.calculateErrorOfBatch(batch, i))
+            gradient = self.calculateErrorOfBatch(batch, i)
+            self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient)
+            currentAdjustments.append(self.momentums[i])
 
         return currentAdjustments
 
@@ -84,8 +89,7 @@ class StochasticGradientDescent():
 
     def adjustModelWeights(self, adjustments):
         for index, weight in enumerate(self.weights):
-            adjustment = self.learningRate * adjustments[index]
-            self.weights[index] -= adjustment
+            self.weights[index] -= self.learningRate * adjustments[index]
 
 
 
