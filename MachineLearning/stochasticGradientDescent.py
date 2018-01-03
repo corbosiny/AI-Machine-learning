@@ -49,17 +49,17 @@ class StochasticGradientDescent():
 
     
     def calculateAdjustmentsNeededForModel(self):
+        batch = self.getBatch()
         currentAdjustments = []
-        dataPoint = self.getDataPoint()
-        actualOutput = dataPoint[-1]
-        inputs = [feature for feature in dataPoint[:-1]]
-
-        predictedOutput = self.weights[0] + sum([weight * feature for weight, feature in list(zip(self.weights[1:], inputs))])
         for i in range(len(self.weights)):
-            currentAdjustments.append(self.calculateAdjustment(actualOutput, i, predictedOutput))
+            currentAdjustments.append(self.calculateErrorOfBatch(batch, i))
 
         return currentAdjustments
 
+
+    def getBatch(self, numDataPoints = 3):
+        return [self.getDataPoint() for i in range(numDataPoints)]
+            
 
     def getDataPoint(self):
             try:
@@ -69,9 +69,17 @@ class StochasticGradientDescent():
                 return next(self.dataGenerator)
 
     
-    def calculateAdjustment(self, actualOutput, indexNum, predictedOutput):
-        gradient = (predictedOutput - actualOutput) * self.weights[indexNum]
-        return gradient
+    def calculateErrorOfBatch(self, batch, weightNum):
+        totalCost = 0
+        for dataPoint in batch:
+            actualOutput = dataPoint[-1]
+            predictedOutput = self.weights[0] + sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint[:-1]))])
+            if weightNum == 0:
+                totalCost += (predictedOutput - actualOutput)
+            else:
+                totalCost += (predictedOutput - actualOutput) * dataPoint[weightNum - 1]
+        
+        return totalCost
 
 
     def adjustModelWeights(self, adjustments):

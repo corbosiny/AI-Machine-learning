@@ -32,7 +32,7 @@ class StochasticGradientDescentTester():
             assert(datapoint == compare)
 
         print(self.testClass.fit())
-        print(self.testClass.predictModelOutput([1]))
+        print(self.testClass.predictModelOutput([3]))
         
 if __name__ == "__main__":
     tester = StochasticGradientDescentTester()
