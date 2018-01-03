@@ -10,6 +10,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.cross_validation import train_test_split
+from gaussian import Gaussian
+
 
 class KMeans():
 
@@ -156,13 +158,30 @@ class KMeans():
                     point[i] = (point[i] - self.ranges[i][0]) / (self.ranges[i][1] - self.ranges[i][0])
                 except ZeroDivisionError:
                     point[i] = self.ranges[i][0]
-                    
-        for mean in self.means:
-            distances.append(distance.euclidean(mean, point))
 
-        clusterIndex = distances.index(min(distances))
-        
-        return self.clusterLabels[clusterIndex]
+        nearest = self.calcNearest()
+            
+        labelProbabilities = [len(subset) / len(self.data) for subset in nearest]
+
+        gausses = {}
+        for label, subset in enumerate(nearest):
+            gausses[label] = []
+            for featureNum in range(len(subset[0])):
+                featureSet = [dataPoint[featureNum] for dataPoint in subset]
+                mean = sum(featureSet) / len(featureSet)
+                squaredDiffFromMean = [(mean - dataPoint[featureNum]) ** 2 for dataPoint in subset]
+                variance = sum(squaredDiffFromMean) / len(squaredDiffFromMean)
+                gausses[label].append(Gaussian(mean, variance))
+                
+
+        probabilities = []
+        for label in range(len(labelProbabilities)):
+            for featureNum, gauss in enumerate(gausses[label]):
+                labelProbabilities[label] *= gauss.evaluate(point[featureNum]) 
+
+            
+        label = labelProbabilities.index(max(labelProbabilities))
+        return label
 
 
     def scoreTest(self, testData, answers):         #for testing the accuracy of the classifier
@@ -207,8 +226,11 @@ if __name__ == "__main__":
     Xset,Xtest, Yset, Ytest = train_test_split(irisData.data, irisData.target, test_size = .75)
     labels = []
 
-    means = KMeans(Xset, labels= Yset, allLabels = [0,1,2], numMeans= 3, featureScaling = True)
-    means.fit(500)
-    print(means.predictDataPoint(Xtest[0]))
-    print(means.scoreTest(Xtest, Ytest))
-    means.displayData()
+    means = KMeans(fakeData, labels= [0, 0, 1, 0, 1, 1, 1], allLabels = [0,1], numMeans= 2, featureScaling = True)
+    means.fit(1000)
+    print(means.predictDataPoint(fakeData[0]))
+    #means.displayData()
+
+
+
+    
