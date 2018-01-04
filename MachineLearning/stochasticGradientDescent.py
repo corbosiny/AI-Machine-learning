@@ -55,8 +55,10 @@ class StochasticGradientDescent():
         batch = self.getBatch()
         currentAdjustments = []
         for i in range(len(self.weights)):
+            self.weights = [weight -  (self.momentums[i] * self.momentumRate) for weight in self.weights]
             gradient = self.calculateErrorOfBatch(batch, i)
-            self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient)
+            self.weights = [weight + (self.momentums[i] * self.momentumRate) for weight in self.weights]
+            self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient * self.learningRate)
             if iteration < 100:
                 self.momentums[i] *= 1 / (1 - math.pow(self.momentumRate, iteration + 1))
             currentAdjustments.append(self.momentums[i])
@@ -91,7 +93,7 @@ class StochasticGradientDescent():
 
     def adjustModelWeights(self, adjustments):
         for index, weight in enumerate(self.weights):
-            self.weights[index] -= self.learningRate * adjustments[index]
+            self.weights[index] -= adjustments[index]
 
 
 
