@@ -24,7 +24,7 @@ class StochasticGradientDescent():
                 
     def fit(self, numIterations = 200000):
         for iteration in range(numIterations):
-            adjustments = self.calculateAdjustmentsNeededForModel()
+            adjustments = self.calculateAdjustmentsNeededForModel(iteration)
             self.adjustModelWeights(adjustments)
 
         return self.weights
@@ -51,12 +51,14 @@ class StochasticGradientDescent():
             yield point
 
     
-    def calculateAdjustmentsNeededForModel(self):
+    def calculateAdjustmentsNeededForModel(self, iteration):
         batch = self.getBatch()
         currentAdjustments = []
         for i in range(len(self.weights)):
             gradient = self.calculateErrorOfBatch(batch, i)
             self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient)
+            if iteration < 100:
+                self.momentums[i] *= 1 / (1 - math.pow(self.momentumRate, iteration + 1))
             currentAdjustments.append(self.momentums[i])
 
         return currentAdjustments
