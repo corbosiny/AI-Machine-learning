@@ -53,15 +53,12 @@ class StochasticGradientDescent():
 
     
     def calculateAdjustmentsNeededForModel(self, iteration):
-        batch = self.getBatch()
+        self.currentBatch = self.getBatch()
         currentAdjustments = []
         for i in range(len(self.weights)):
-            self.weights = [weight -  (self.momentums[i] * self.momentumRate) for weight in self.weights]
-            gradient = self.calculateErrorOfBatch(batch, i)
-            self.weights = [weight + (self.momentums[i] * self.momentumRate) for weight in self.weights]
+            gradient  = self.calculateLookAheadGradient(i)
             self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient * self.learningRate)
-            if iteration < 100:
-                self.momentums[i] *= 1 / (1 - math.pow(self.momentumRate, iteration + 1))
+            self.momentums[i] *= 1 / (1 - math.pow(self.momentumRate, iteration + 1))
             currentAdjustments.append(self.momentums[i])
 
         return currentAdjustments
@@ -78,10 +75,17 @@ class StochasticGradientDescent():
                 self.dataGenerator = self.initDataGenerator()
                 return next(self.dataGenerator)
 
-    
-    def calculateErrorOfBatch(self, batch, weightNum):
+
+    def calculateLookAheadGradient(self, weightNum):
+            
+            self.weights = [weight -  (self.momentums[weightNum] * self.momentumRate) for weight in self.weights]
+            gradient = self.calculateErrorOfCurrentBatch(weightNum)
+            self.weights = [weight + (self.momentums[weightNum] * self.momentumRate) for weight in self.weights]
+            return gradient
+        
+    def calculateErrorOfCurrentBatch(self, weightNum):
         totalCost = 0
-        for dataPoint in batch:
+        for dataPoint in self.currentBatch:
             actualOutput = dataPoint[-1]
             predictedOutput = self.weights[0] + sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint[:-1]))])
             if weightNum == 0:
