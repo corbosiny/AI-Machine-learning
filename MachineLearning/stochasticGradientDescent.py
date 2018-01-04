@@ -7,7 +7,7 @@ from featureScaler import FeatureScaler
 
 class StochasticGradientDescent():
 
-    def __init__(self, trainingSet, weights = None, learningRate = .0001, momentumRate = .5):
+    def __init__(self, trainingSet, weights = None, learningRate = .0001, momentumRate = .9):
         self.weights = weights
         self.learningRate = learningRate
         self.momentumRate = momentumRate
