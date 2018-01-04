@@ -36,9 +36,9 @@ class StochasticGradientDescentTester():
         return scaledDataSet
     
     def testDataGenerator(self, scaledDataSet):
+        classifierDataSet = [next(self.testClass.dataGenerator) for datapoint in scaledDataSet]
         for datapoint in scaledDataSet:
-            compare = next(self.testClass.dataGenerator)
-            assert(datapoint == compare)
+            assert(datapoint in classifierDataSet)
 
     def testFitting(self):
         print(self.testClass.fit())

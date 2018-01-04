@@ -47,6 +47,7 @@ class StochasticGradientDescent():
         return scaledDataSet
 
     def initDataGenerator(self):
+        random.shuffle(self.trainingSet)
         for point in self.trainingSet:
             yield point
 
