@@ -95,7 +95,6 @@ class StochasticGradientDescent():
 
     def predictModelOutput(self, inputs):
         scaledInputs = [scaler.featureScaleMeanPoint(inputFeature) for scaler, inputFeature in list(zip(self.featureScalers, inputs))]
-        print(scaledInputs)
         output = self.weights[0]
         for i, feature in enumerate(scaledInputs):
             output += feature * self.weights[i + 1]
