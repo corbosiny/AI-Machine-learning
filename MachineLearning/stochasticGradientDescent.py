@@ -3,14 +3,16 @@ import math
 import random
 from featureScaler import FeatureScaler
 
-#THIS IS STILL UNDER CONSTRUCTION AND IS NOT WORKING YET!!!!!
 
 class StochasticGradientDescent():
 
-    def __init__(self, trainingSet, weights = None, learningRate = .0001, momentumRate = .9):
+    eps = .00000001
+
+    def __init__(self, trainingSet, weights = None, learningRate = .001, momentumRate = .9, RMSrate = .9):
         self.weights = weights
         self.learningRate = learningRate
         self.momentumRate = momentumRate
+        self.RMSrate = RMSrate
         
         if weights is None:
             self.weights = self.initWeights(len(trainingSet[0])) 
@@ -18,6 +20,7 @@ class StochasticGradientDescent():
             self.weights = weights
 
         self.momentums = [0 for weight in self.weights]
+        self.RMSgradients = [0 for weight in self.weights]
         
         self.trainingSet = self.scaleFeatures(trainingSet)
         self.dataGenerator = self.initDataGenerator()
@@ -57,9 +60,11 @@ class StochasticGradientDescent():
         currentAdjustments = []
         for i in range(len(self.weights)):
             gradient  = self.calculateLookAheadGradient(i)
-            self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient * self.learningRate)
+            self.RMSgradients[i] = self.RMSgradients[i] * self.RMSrate + (1 - self.RMSrate) * math.pow(gradient, 2)
+            self.RMSgradients[i] *= 1 / (1 - math.pow(self.RMSrate, iteration + 1))
+            self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient)
             self.momentums[i] *= 1 / (1 - math.pow(self.momentumRate, iteration + 1))
-            currentAdjustments.append(self.momentums[i])
+            currentAdjustments.append(self.momentums[i] / np.sqrt(self.RMSgradients[i]) + StochasticGradientDescent.eps)
 
         return currentAdjustments
 
@@ -98,7 +103,7 @@ class StochasticGradientDescent():
 
     def adjustModelWeights(self, adjustments):
         for index, weight in enumerate(self.weights):
-            self.weights[index] -= adjustments[index]
+            self.weights[index] -= self.learningRate * adjustments[index]
 
 
 
