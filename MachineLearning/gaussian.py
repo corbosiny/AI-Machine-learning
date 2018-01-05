@@ -2,10 +2,8 @@ from __future__ import division
 import math
 import random
 import matplotlib.pyplot as plt
-from matrix import Matrix    #uses this for the incoming filtering ability
 
 
-#the filter function that takes in image pixels isnt working yet, everything else is
 class Gaussian():
 
     def __init__(self, sigmaSquared, mu = 0, tolerance = .001):
@@ -25,9 +23,19 @@ class Gaussian():
 
     def evaluate(self, point): #returns prob of getting that exact number
         try:
-            return 1 / math.sqrt(2 * math.pi * self.sigma2) * math.exp(-.5 * math.pow(point - self.mu, 2) / self.sigma2)            
+            return math.exp(- ((self.mu - point) ** 2) / (self.sigma2) / 2.0) / math.sqrt(2 * math.pi * self.sigma2)           
         except:
             return point == self.mu
+
+    def generateGaussianNoise(self):
+        initialProbabilityScore = random.random() * self.evaluate(self.mu) * 2
+        probabilityOfScore = 0
+        while initialProbabilityScore > probabilityOfScore:
+            choice = random.randrange(int(self.mu - self.stdEv * 5.0), int(self.mu + self.stdEv * 5.0))
+            probabilityOfChoice = self.evaluate(choice)
+            initialProbabilityScore -= probabilityOfChoice
+            
+        return choice 
 
     def returnProbDensity(self, num):  #returns the prob of getting a value of equal to or less than the given value with the distribution parameters
         prob = 0
@@ -116,5 +124,13 @@ class Gaussian():
 if __name__ == "__main__":
     gauss = Gaussian(8, 10) #test code below to make sure everything is working
     gauss2 = Gaussian(2, 13)
-    print(gauss * gauss2)
-
+    print("Added: \n" + str(gauss + gauss2))
+    print("Multiplied: \n" + str(gauss * gauss2))
+    noise = [gauss.generateGaussianNoise() for i in range(1000)]
+    noiseMean = sum(noise)  / len(noise)
+    noiseVar = sum([math.pow(x - noiseMean, 2) for x in noise]) / len(noise)
+    print("Mean of noise:", noiseMean)
+    print("Variamce of noise:", noiseVar)
+    numBins = 15
+    plt.hist(noise, numBins)
+    plt.show()
