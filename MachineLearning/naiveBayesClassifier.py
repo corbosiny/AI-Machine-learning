@@ -1,5 +1,6 @@
 import pandas as pd
 import csv
+import math
 from dataSplitter import DataSplitter
 from gaussian import Gaussian
 
@@ -50,26 +51,30 @@ class NaiveBayesClassifier():
         predictionChancesByLabel = {}
         for label in self.dataSplitByClass:
             try:
-                predictionChancesByLabel[label] = self.classProbabilities[label]
+                predictionChancesByLabel[label] = math.log(self.classProbabilities[label])
                 distributions = self.featureDistributionsByClass[label]
                 for featureNum, feature in enumerate(dataPoint):
                     if feature == None:
                         continue
                     else:
-                        predictionChancesByLabel[label] *= distributions[featureNum].evaluate(feature)
-
-            except:
+                        predictionChancesByLabel[label] += math.log(distributions[featureNum].evaluate(feature))
+            except ValueError as e:
+                predictionChancesByLabel[label] = float("-inf")
+            except Exception as e:
                 pass #if the datapoint has more data than our testing data we ignore that
-                
+            
         return NaiveBayesClassifier.calcMaxPrediction(predictionChancesByLabel)
 
 
     def calcMaxPrediction(predictionChancesByLabel):
-        prediction = [0, 0]
+        bestPrediction = None
         for label in predictionChancesByLabel:
-            if predictionChancesByLabel[label] > prediction[1]:
-                prediction = [label, predictionChancesByLabel[label]]
-        return prediction[0]
+            if bestPrediction is None:
+                bestPrediction = [label, predictionChancesByLabel[label]]
+            elif predictionChancesByLabel[label] > bestPrediction[1]:
+                bestPrediction = [label, predictionChancesByLabel[label]]
+                
+        return bestPrediction[0]
     
     def loadCSV(fileName):
         lines = csv.reader(open(fileName, "r"))

@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 class Gaussian():
 
+    eps = .00000001
+
     def __init__(self, sigmaSquared, mu = 0, tolerance = .001):
         if not isinstance(mu, int) and not isinstance(mu, float):
             raise ValueError('Mu must be a numerical value')
@@ -22,10 +24,7 @@ class Gaussian():
         self.stepSize = self.adaptStepSize(mu) #adapts step size for the given tolerance
 
     def evaluate(self, point): #returns prob of getting that exact number
-        try:
-            return math.exp(- ((self.mu - point) ** 2) / (self.sigma2) / 2.0) / math.sqrt(2 * math.pi * self.sigma2)           
-        except:
-            return point == self.mu
+        return math.exp(- ((self.mu - point) ** 2) / (self.sigma2 + Gaussian.eps) / 2.0) / math.sqrt(2 * math.pi * self.sigma2 + Gaussian.eps)           
 
     def generateGaussianNoise(self):
         initialProbabilityScore = random.random() * self.evaluate(self.mu) * 2
@@ -122,10 +121,17 @@ class Gaussian():
         return string
     
 if __name__ == "__main__":
-    gauss = Gaussian(8, 10) #test code below to make sure everything is working
-    gauss2 = Gaussian(2, 13)
+    gauss = Gaussian(.667, 14) #test code below to make sure everything is working
+    gauss2 = Gaussian(1.556, 21.333)
+    gauss3 = Gaussian(0, 4)
     print("Added: \n" + str(gauss + gauss2))
     print("Multiplied: \n" + str(gauss * gauss2))
+    print(gauss.evaluate(18))
+    print(gauss2.evaluate(18))
+    print(gauss3.evaluate(18))
+    print(math.log(gauss.evaluate(18)))
+    print(math.log(gauss2.evaluate(18)))
+    print(math.log(gauss3.evaluate(18)))
     noise = [gauss.generateGaussianNoise() for i in range(1000)]
     noiseMean = sum(noise)  / len(noise)
     noiseVar = sum([math.pow(x - noiseMean, 2) for x in noise]) / len(noise)
