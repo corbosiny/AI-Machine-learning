@@ -5,7 +5,8 @@ class Question():
         self.columnNumber = columnNumber
         self.valueToCompare = valueToCompare
 
-    def match(self, rowVal):
+    def evaluate(self, row):
+        rowVal = row[self.columnNumber]
         if Question.isNumeric(self.valueToCompare):
             return rowVal >= self.valueToCompare
         else:
@@ -23,8 +24,8 @@ class Question():
 
 
 if __name__ == "__main__":
-    question = Question(3, 5)
+    question = Question(0, 5)
     print(question)
-    print(question.match(5))
-    print(question.match(4))
-    print(question.match(6))
+    print(question.evaluate([5, 3]))
+    print(question.evaluate([4, 2]))
+    print(question.evaluate([6, 3]))
