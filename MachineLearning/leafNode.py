@@ -24,7 +24,7 @@ class Leaf():
         return bestLabel
 
     def findMaxLabel(probabilities):
-        bestLabel, bestProbability = None, 0
+        bestLabel, bestProbability = None, -1
 
         for label in probabilities:
             if probabilities[label] > bestProbability:

@@ -1,9 +1,9 @@
 class DesicionNode():
 
-    def __init__(self, question, trueBranch, falseBranch):
+    def __init__(self, question, trueNode, falseNode):
         self.question = question
-        self.trueBranch = trueBranch
-        self.falseBranch = falseBranch
+        self.trueNode = trueNode
+        self.falseNode = falseNode
 
 
     def __repr__(self):

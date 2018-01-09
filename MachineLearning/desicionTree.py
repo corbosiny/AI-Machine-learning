@@ -1,3 +1,4 @@
+from __future__ import division
 from question import Question
 from desicionNode import DesicionNode
 from leafNode import Leaf
@@ -13,7 +14,7 @@ class DesicionTree():
 
 
     def createTree(self, trainingData):
-        if len(trainindData) == 0:
+        if len(trainingData) == 0:
             return None
         
         question, gain = self.findBestQuestion(trainingData)
@@ -32,34 +33,39 @@ class DesicionTree():
         currentUncertainty = self.gini(trainingData)
         
         for column in range(len(trainingData[0]) - 1):
-            values = set([dataPoint[column] for dataPoint in self.trainingData])
+            values = set([dataPoint[column] for dataPoint in trainingData])
 
             for value in values:
                 question = Question(column, value)
                 trueSet, falseSet = DesicionTree.splitDataByQuestion(trainingData, question)
-                gain = self.infoGain(trueSet, falseSet, currentUncertanty)
+
+                if len(falseSet) == 0 or len(trueSet) == 0:
+                    continue
+                
+                gain = self.infoGain(trueSet, falseSet, currentUncertainty)
 
                 if gain > bestGain:
                     bestQuestion = question
+                    bestGain = gain
 
         return bestQuestion, bestGain
 
     def gini(self, dataSet):
         allLabelInstances = [dataPoint[-1] for dataPoint in dataSet]
-        labelCounts = {label : allLabelInstances.count(label) for label in self.columnLabels}
-        impurity = 1
-        for label in labels:
+        setOfLabels = set(allLabelInstances)
+        labelCounts = {label : allLabelInstances.count(label) for label in setOfLabels}
+        impurity = 1.0
+        for label in setOfLabels:
             probability = labelCounts[label] / float(len(dataSet))
             impurity -= probability ** 2
-            
         return impurity
     
-    def infoGain(self, trueSet, falseSet, currentUncertanty):
+    def infoGain(self, trueSet, falseSet, currentUncertainty):
         prob = float(len(trueSet)) / (len(trueSet) + len(falseSet))
-        return currentUncertanty - prob * self.gini(trueSet) - (1 - prob) * self.gini(falseSet)
+        return currentUncertainty - prob * self.gini(trueSet) - (1 - prob) * self.gini(falseSet)
 
     def splitDataByQuestion(trainingData, question):
-        trueSet, falseSet = []
+        trueSet, falseSet = [], []
 
         for dataPoint in trainingData:
             if question.evaluate(dataPoint):
@@ -77,15 +83,17 @@ class DesicionTree():
                 currentNode = currentNode.trueNode
             else:
                 currentNode = currentNode.falseNode
+            
 
         if currentNode is None:
             return None
-
+        print(currentNode.predict())
         return currentNode.predict()
 
 if __name__ == "__main__":
     trainingData = [['Green', 3, 'Apple'], ['Yellow', 3, 'Apple'], ['Red', 1, 'Grape'], ['Red', 1, 'Grape'], ['Yellow', 3, 'Lemon']]
     labels = ['color', 'diameter', 'label']
     tree = DesicionTree(trainingData, labels)
+    tree.predict(trainingData[0])
 
     
