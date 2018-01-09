@@ -7,57 +7,56 @@ class DesicionTree():
     def __init__(self, trainingData, labels):
 
         self.columnLables = labels
-        self.trainingData = trainingData[1:]
+        self.trainingData = trainingData
         
-        self.rootNode = DesicionTree.createTree(self.trainingData)
+        self.rootNode = self.createTree(self.trainingData)
 
 
-    def createTree(trainingData):
+    def createTree(self, trainingData):
         if len(trainindData) == 0:
             return None
         
-        question, gain = DesicionTree.findBestQuestion(trainingData)
+        question, gain = self.findBestQuestion(trainingData)
         if gain == 0:
             return Leaf(trainingData)
         
         trueSet, falseSet = DesicionTree.splitDataByQuestion(trainingData, question)
 
-        trueBranch = DesicionTree.createTree(trueSet)
-        falseBranch = DesicionTree.createTree(falseSet)
+        trueBranch = self.createTree(trueSet)
+        falseBranch = self.createTree(falseSet)
         return DesicionNode(question, trueBranch, falseBranch) 
 
-    def findBestQuestion(trainingData):
+    def findBestQuestion(self, trainingData):
         bestQuestion = None
         bestGain = 0
-        currentUncertainty = DesicionTree.gini(trainingData)
+        currentUncertainty = self.gini(trainingData)
         
         for column in range(len(trainingData[0]) - 1):
             values = set([dataPoint[column] for dataPoint in self.trainingData])
 
             for value in values:
                 question = Question(column, value)
-                trueSet, falseSet = DesicionTree.splitDataByQuestion(question)
-                gain = DesicionTree.infoGain(trueSet, falseSet, currentUncertanty)
+                trueSet, falseSet = DesicionTree.splitDataByQuestion(trainingData, question)
+                gain = self.infoGain(trueSet, falseSet, currentUncertanty)
 
                 if gain > bestGain:
                     bestQuestion = question
 
         return bestQuestion, bestGain
 
-    def gini(dataSet):
-        labels = set([dataPoint[-1] for dataPoint in dataSet])
+    def gini(self, dataSet):
         allLabelInstances = [dataPoint[-1] for dataPoint in dataSet]
-        labelCounts = {label : allLabelInstances.count(label)}
+        labelCounts = {label : allLabelInstances.count(label) for label in self.columnLabels}
         impurity = 1
         for label in labels:
-            probability = labelCounts[label] / len(dataSet)
+            probability = labelCounts[label] / float(len(dataSet))
             impurity -= probability ** 2
             
         return impurity
     
-    def infoGain(trueSet, falseSet, currentUncertanty):
-        prob = float(len(left)) / (len(left) + len(right))
-        return currentUncertanty - prob * DesicionTree.gini(trueSet) - (1 - prob) * DesicionTree.gini(falseSet)
+    def infoGain(self, trueSet, falseSet, currentUncertanty):
+        prob = float(len(trueSet)) / (len(trueSet) + len(falseSet))
+        return currentUncertanty - prob * self.gini(trueSet) - (1 - prob) * self.gini(falseSet)
 
     def splitDataByQuestion(trainingData, question):
         trueSet, falseSet = []
@@ -88,3 +87,5 @@ if __name__ == "__main__":
     trainingData = [['Green', 3, 'Apple'], ['Yellow', 3, 'Apple'], ['Red', 1, 'Grape'], ['Red', 1, 'Grape'], ['Yellow', 3, 'Lemon']]
     labels = ['color', 'diameter', 'label']
     tree = DesicionTree(trainingData, labels)
+
+    
