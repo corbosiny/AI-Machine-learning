@@ -113,9 +113,18 @@ class StochasticGradientDescent():
         for i, feature in enumerate(scaledInputs):
             output += feature * self.weights[i + 1]
         return output
-        
 
-        
+    def maeError(actual, predicted):
+        totalError = 0
+        for i in range(len(actual)):
+            totalError += abs(predicted[i] - actual[i])
+        return totalError / float(len(actual))
+
+    def rmsError(actual, predicted):
+        totalError = 0
+        for i in range(len(actual)):
+            totalError += (predicted[i] - actual[i]) ** 2
+        return totalError / float(len(actual))
     
 
 if __name__ == "__main__":
