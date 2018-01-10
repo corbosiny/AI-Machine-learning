@@ -3,11 +3,11 @@ import numpy as np
 
 class Perceptron():
     
-    def __init__(self, weights, bias, activationType = "sigmoid"):
+    def __init__(self, weights, bias = 0, activationType = "sigmoid"):
         self.weights = np.array([weight for weight in weights])
         self.bias = bias
-        self.activationFunction = initActivationFunction(activationType)
-
+        self.activationFunction = self.initActivationFunction(activationType)
+        
     def initActivationFunction(self, activationType):
         activationType = activationType.lower()
         if activationType == "sigmoid":
@@ -20,7 +20,7 @@ class Perceptron():
             return Perceptron.binary
         elif activationType == "tangent":
             return Perceptron.tanH
-        elif activationType = "arctan":
+        elif activationType == "arctan":
             return Perceptron.arctan
         
     def calculateOutput(self, inputs):
