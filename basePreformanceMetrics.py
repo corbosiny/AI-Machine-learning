@@ -35,6 +35,10 @@ def zeroRuleRegression(trainingData, testingData):
     return predictions
 
 
+def confusionMatrix(actual, predicted):
+    pass
+    
+
 if __name__ == "__main__":
     trainingSet = [[0, 2, 'Green'], [1, 4, 'Red'], [5, 2, 'Yellow'], [1, 1, 'Green'], [0, 0, 'Blue']]
     testingSet = [[1,1], [3,2], [4,5], [7,1], [3,2]]
