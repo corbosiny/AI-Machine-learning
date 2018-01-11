@@ -41,7 +41,7 @@ class StochasticGradientDescentTester():
             assert(datapoint in classifierDataSet)
 
     def testFitting(self):
-        print(self.testClass.fit(20000))
+        print(self.testClass.fit())
         print(self.testClass.predictModelOutput([1]))
         print(self.testClass.predictModelOutput([2]))
         print(self.testClass.predictModelOutput([3]))

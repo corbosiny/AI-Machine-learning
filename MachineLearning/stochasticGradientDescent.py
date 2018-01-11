@@ -92,22 +92,19 @@ class StochasticGradientDescent():
     def calculateErrorOfCurrentBatch(self, weightNum):
         totalCost = 0
         for dataPoint in self.currentBatch:
+            copyOfDataPoint = [1] + dataPoint
             actualOutput = dataPoint[-1]
             predictedOutput = self.calculateOutput(dataPoint[:-1])
-            if self.activationType == 'linear':
-                if weightNum == 0:
-                    totalCost += (predictedOutput - actualOutput)
-                else:
-                    totalCost += (predictedOutput - actualOutput) * dataPoint[weightNum - 1]
-            elif self.activationType == 'logistic':
-                if weightNum == 0:
-                    totalCost += (predictedOutput - actualOutput) * predictedOutput * (1 - predictedOutput)
-                else:
-                    totalCost += (predictedOutput - actualOutput) * dataPoint[weightNum - 1] * predictedOutput * (1 - predictedOutput)
+            totalCost += self.calculateGradient(actualOutput, predictedOutput, weightNum, copyOfDataPoint)
                  
         return totalCost / float(len(self.currentBatch))
 
-
+    def calculateGradient(self, actualOutput, predictedOutput, weightNum, dataPoint):
+        if self.activationType == 'linear':
+            return (predictedOutput - actualOutput) * dataPoint[weightNum]
+        elif self.activationType == 'logistic':
+            return (predictedOutput - actualOutput) * dataPoint[weightNum] * predictedOutput * (1 - predictedOutput)
+        
     def calculateOutput(self, dataPoint):
         if self.activationType == "linear":
             output = sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint))])
