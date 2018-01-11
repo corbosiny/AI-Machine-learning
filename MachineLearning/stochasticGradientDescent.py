@@ -100,7 +100,10 @@ class StochasticGradientDescent():
                 else:
                     totalCost += (predictedOutput - actualOutput) * dataPoint[weightNum - 1]
             elif self.activationType == 'logistic':
-                pass
+                if weightNum == 0:
+                    totalCost += (predictedOutput - actualOutput) * predictedOutput * (1 - predictedOutput)
+                else:
+                    totalCost += (predictedOutput - actualOutput) * dataPoint[weightNum - 1] * predictedOutput * (1 - predictedOutput)
                  
         return totalCost / float(len(self.currentBatch))
 
