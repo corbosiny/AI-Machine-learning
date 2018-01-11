@@ -8,11 +8,12 @@ class StochasticGradientDescent():
 
     eps = .00000001
 
-    def __init__(self, trainingSet, weights = None, learningRate = .001, momentumRate = .9, RMSrate = .9):
+    def __init__(self, trainingSet, weights = None, learningRate = .001, momentumRate = .9, RMSrate = .9, activationType= 'linear'):
         self.weights = weights
         self.learningRate = learningRate
         self.momentumRate = momentumRate
         self.RMSrate = RMSrate
+        self.activationType = activationType
         
         if weights is None:
             self.weights = self.initWeights(len(trainingSet[0])) 
@@ -92,7 +93,7 @@ class StochasticGradientDescent():
         totalCost = 0
         for dataPoint in self.currentBatch:
             actualOutput = dataPoint[-1]
-            predictedOutput = self.weights[0] + sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint[:-1]))])
+            predictedOutput = self.calculateOutput(dataPoint[:-1])
             if weightNum == 0:
                 totalCost += (predictedOutput - actualOutput)
             else:
@@ -101,6 +102,16 @@ class StochasticGradientDescent():
         return totalCost
 
 
+    def calculateOutput(self, dataPoint):
+        if self.activationType == "linear":
+            output = sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint))])
+            output += self.weights[0]
+            return output
+        elif self.activationType == "logistic":
+            inpt = sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint[:-1]))]) - self.weights[0]
+            return StochasticGradientDescent.sigmoid(inpt)
+
+        
     def adjustModelWeights(self, adjustments):
         for index, weight in enumerate(self.weights):
             self.weights[index] -= self.learningRate * adjustments[index]
@@ -109,11 +120,12 @@ class StochasticGradientDescent():
 
     def predictModelOutput(self, inputs):
         scaledInputs = [scaler.featureScaleMeanPoint(inputFeature) for scaler, inputFeature in list(zip(self.featureScalers, inputs))]
-        output = self.weights[0]
-        for i, feature in enumerate(scaledInputs):
-            output += feature * self.weights[i + 1]
-        return output
+        return self.calculateOutput(scaledInputs)
 
+
+    def sigmoid(inpt):
+        return 1.0 / float(np.exp(-inpt) + 1)
+        
     def maeError(actual, predicted):
         totalError = 0
         for i in range(len(actual)):
@@ -127,5 +139,11 @@ class StochasticGradientDescent():
         return totalError / float(len(actual))
     
 
+
+    
 if __name__ == "__main__":
-    pass
+    testTrainingSet = [[0, 1], [1, 0], [.5, .5]]
+
+    #print(StochasticGradientDescent())
+    testClass = StochasticGradientDescent(testTrainingSet, activationType = 'logistic')
+    testClass.fit()    
