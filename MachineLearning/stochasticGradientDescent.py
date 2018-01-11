@@ -94,12 +94,15 @@ class StochasticGradientDescent():
         for dataPoint in self.currentBatch:
             actualOutput = dataPoint[-1]
             predictedOutput = self.calculateOutput(dataPoint[:-1])
-            if weightNum == 0:
-                totalCost += (predictedOutput - actualOutput)
-            else:
-                totalCost += (predictedOutput - actualOutput) * dataPoint[weightNum - 1]
-        
-        return totalCost
+            if self.activationType == 'linear':
+                if weightNum == 0:
+                    totalCost += (predictedOutput - actualOutput)
+                else:
+                    totalCost += (predictedOutput - actualOutput) * dataPoint[weightNum - 1]
+            elif self.activationType == 'logistic':
+                pass
+                 
+        return totalCost / float(len(self.currentBatch))
 
 
     def calculateOutput(self, dataPoint):
@@ -108,7 +111,7 @@ class StochasticGradientDescent():
             output += self.weights[0]
             return output
         elif self.activationType == "logistic":
-            inpt = sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint[:-1]))]) - self.weights[0]
+            inpt = self.weights[0] + sum([weight * feature for weight, feature in list(zip(self.weights[1:], dataPoint))])
             return StochasticGradientDescent.sigmoid(inpt)
 
         
@@ -124,7 +127,12 @@ class StochasticGradientDescent():
 
 
     def sigmoid(inpt):
-        return 1.0 / float(np.exp(-inpt) + 1)
+        output = 0
+        try:
+            output =  1.0 / float(math.exp(-inpt) + 1)
+        except:
+            output = 0
+        return output
         
     def maeError(actual, predicted):
         totalError = 0
@@ -147,3 +155,6 @@ if __name__ == "__main__":
     #print(StochasticGradientDescent())
     testClass = StochasticGradientDescent(testTrainingSet, activationType = 'logistic')
     testClass.fit()    
+    print(testClass.predictModelOutput(testTrainingSet[0][:-1]))
+    print(testClass.predictModelOutput(testTrainingSet[1][:-1]))
+    print(testClass.predictModelOutput(testTrainingSet[2][:-1]))
