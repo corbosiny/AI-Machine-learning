@@ -1,6 +1,6 @@
 from stochasticGradientDescent import StochasticGradientDescent
 from featureScaler import FeatureScaler
-
+import matplotlib.pyplot as plt
 testTrainingDataSet = [[1, 3], [2, 5], [3, 7]]
 
 class StochasticGradientDescentTester():
@@ -18,6 +18,7 @@ class StochasticGradientDescentTester():
         scaledDataSet = self.testFeatureScaling()
         self.testDataGenerator(scaledDataSet)
         self.testFitting()
+        self.plotGradientDescent()
         print("Test passed!")
 
     def testFeatureScaling(self):
@@ -48,7 +49,18 @@ class StochasticGradientDescentTester():
         assert(abs(3 - self.testClass.predictModelOutput([1])) < .5)
         assert(abs(5 - self.testClass.predictModelOutput([2])) < .5)
         assert(abs(7 - self.testClass.predictModelOutput([3])) < .5)
-                
+
+    def plotGradientDescent(self):
+        epochs = [epochNum for epochNum in self.testClass.totalErrorForEpochs]
+        errorValues = [self.testClass.totalErrorForEpochs[epoch][0] for epoch in epochs]
+        momentumValues = [self.testClass.totalErrorForEpochs[epoch][1] for epoch in epochs]
+        plt.plot(epochs, errorValues)
+        plt.plot(epochs, momentumValues)
+        plt.legend(['Gradient over all weights for each epoch', 'Running momentum for each epoch'])
+        plt.xlabel('Epoch Number')
+        plt.ylabel('Gradient')
+        plt.show()
+    
 if __name__ == "__main__":
     tester = StochasticGradientDescentTester()
     tester.test()

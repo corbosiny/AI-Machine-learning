@@ -27,6 +27,7 @@ class StochasticGradientDescent():
         self.dataGenerator = self.initDataGenerator()
                 
     def fit(self, numIterations = 200000):
+        self.totalErrorForEpochs = {}
         for iteration in range(numIterations):
             adjustments = self.calculateAdjustmentsNeededForModel(iteration)
             self.adjustModelWeights(adjustments)
@@ -65,6 +66,7 @@ class StochasticGradientDescent():
             self.RMSgradients[i] *= 1 / (1 - math.pow(self.RMSrate, iteration + 1))
             self.momentums[i] = (self.momentums[i] * self.momentumRate) +  ((1 - self.momentumRate) * gradient)
             self.momentums[i] *= 1 / (1 - math.pow(self.momentumRate, iteration + 1))
+            self.totalErrorForEpochs[iteration] = [gradient, self.momentums[i]]
             currentAdjustments.append(self.momentums[i] / np.sqrt(self.RMSgradients[i]) + StochasticGradientDescent.eps)
 
         return currentAdjustments
@@ -82,12 +84,11 @@ class StochasticGradientDescent():
                 return next(self.dataGenerator)
 
 
-    def calculateLookAheadGradient(self, weightNum):
-            
-            self.weights = [weight -  (self.momentums[weightNum] * self.momentumRate) for weight in self.weights]
-            gradient = self.calculateErrorOfCurrentBatch(weightNum)
-            self.weights = [weight + (self.momentums[weightNum] * self.momentumRate) for weight in self.weights]
-            return gradient
+    def calculateLookAheadGradient(self, weightNum):    
+        self.weights = [weight -  (self.momentums[weightNum] * self.momentumRate) for weight in self.weights]
+        gradient = self.calculateErrorOfCurrentBatch(weightNum)
+        self.weights = [weight + (self.momentums[weightNum] * self.momentumRate) for weight in self.weights]
+        return gradient
         
     def calculateErrorOfCurrentBatch(self, weightNum):
         totalCost = 0
