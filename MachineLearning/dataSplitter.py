@@ -23,7 +23,16 @@ class DataSplitter():
         listOfIndicies = random.sample(range(len(sampleData)), numTestingPoints)
         testingData = [sampleData[i] for i in sorted(listOfIndicies)]
         return trainingData, testingData
-            
+
+    def randomSubSample(dataSet, ratio = .5):
+        sample = []
+        copyOfDataSet = [dataPoint for dataPoint in dataSet]
+        while len(sample) < round(len(dataSet) * ratio):
+            index = random.randrange(len(copyOfDataSet))
+            sample.append(copyOfDataSet.pop(index))
+
+        return sample
+    
 if __name__ == "__main__":
     nums = range(1, 11)
 
@@ -31,12 +40,7 @@ if __name__ == "__main__":
     print(trainingSet)
     print(testingSet)
     
-    print("OriginalSet: ", [i for i in range(1,11)])
-    print("\n")
-    for i in range(1, 11):
-        trainingSet, testingSet = DataSplitter.createOrderedTestTrainingSplit(nums, i / 10.0)
-        print("Ratio: ", i / 10.0)
-        print("TrainingSet: ", trainingSet)
-        print("TestingSet: ", testingSet)
-        print("\n")
-    
+
+    dataSet = [1,3,5,7,9,11]
+    for i in range(3):
+        print(DataSplitter.randomSubSample(dataSet))
