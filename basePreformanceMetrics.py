@@ -47,6 +47,19 @@ def confusionMatrix(actual, predicted):
             
     return uniqueLabels, confusionMatrix
 
+def maeError(actual, predicted):
+    totalError = 0
+    for i in range(len(actual)):
+        totalError += abs(predicted[i] - actual[i])
+        return totalError / float(len(actual))
+
+def rmsError(actual, predicted):
+    totalError = 0
+    for i in range(len(actual)):
+        totalError += (predicted[i] - actual[i]) ** 2
+        return totalError / float(len(actual))
+
+
 
 if __name__ == "__main__":
     trainingSet = [[0, 2, 'Green'], [1, 4, 'Red'], [5, 2, 'Yellow'], [1, 1, 'Green'], [0, 0, 'Blue']]
