@@ -13,6 +13,9 @@ class DesicionTree():
         self.rootNode = self.createTree(self.trainingData)
 
 
+    def fit(self):
+        pass
+
     def createTree(self, trainingData):
         if len(trainingData) == 0:
             return None
