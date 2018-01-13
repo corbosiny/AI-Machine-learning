@@ -32,7 +32,30 @@ class DataSplitter():
             sample.append(copyOfDataSet.pop(index))
 
         return sample
+
+    def kFoldsSplit(dataSet, numFolds):
+        folds = []
+        copyOfData = list(dataSet)_
+        foldSize = int(len(dataSet) / numFolds)
+        for foldNum in range(numFolds):
+            fold = []
+            while len(fold) < foldSize:
+                index = random.randrange(len(copyOfData))
+                fold.append(copyOfData.pop(index))
+            folds.append(fold)
+
+        return folds
     
+	dataset_split = list()
+	dataset_copy = list(dataset)
+	fold_size = int(len(dataset) / n_folds)
+	for i in range(n_folds):
+		fold = list()
+		while len(fold) < fold_size:
+			index = randrange(len(dataset_copy))
+			fold.append(dataset_copy.pop(index))
+		dataset_split.append(fold)
+	return dataset_split
 if __name__ == "__main__":
     nums = range(1, 11)
 
