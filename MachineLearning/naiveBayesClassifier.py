@@ -47,7 +47,7 @@ class NaiveBayesClassifier():
         labelSubset = [datapoint for datapoint in dataset if datapoint[-1] == label]
         return len(labelSubset) / len(dataset)
 
-    def predict(self, dataPoint):
+    def predictModelOutput(self, dataPoint):
         predictionChancesByLabel = {}
         for label in self.dataSplitByClass:
             try:
@@ -65,6 +65,9 @@ class NaiveBayesClassifier():
             
         return NaiveBayesClassifier.calcMaxPrediction(predictionChancesByLabel)
 
+    def predict(self, dataset):
+        predictions = [self.predictModelOutput(dataPoint) for dataPoint in dataset]
+        return predictions
 
     def calcMaxPrediction(predictionChancesByLabel):
         bestPrediction = None

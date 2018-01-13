@@ -122,10 +122,13 @@ class StochasticGradientDescent():
 
 
 
-    def predictModelOutput(self, inputs):
-        scaledInputs = [scaler.featureScaleMeanPoint(inputFeature) for scaler, inputFeature in list(zip(self.featureScalers, inputs))]
+    def predictModelOutput(self, datapoint):
+        scaledInputs = [scaler.featureScaleMeanPoint(inputFeature) for scaler, inputFeature in list(zip(self.featureScalers, datapoint))]
         return self.calculateOutput(scaledInputs)
 
+    def predict(self, dataset):
+        predictions = [self.predictModelOutput(dataPoint) for dataPoint in dataset]
+        return predictions
 
     def sigmoid(inpt):
         output = 0
@@ -134,21 +137,7 @@ class StochasticGradientDescent():
         except:
             output = 0
         return output
-        
-    def maeError(actual, predicted):
-        totalError = 0
-        for i in range(len(actual)):
-            totalError += abs(predicted[i] - actual[i])
-        return totalError / float(len(actual))
-
-    def rmsError(actual, predicted):
-        totalError = 0
-        for i in range(len(actual)):
-            totalError += (predicted[i] - actual[i]) ** 2
-        return totalError / float(len(actual))
     
-
-
     
 if __name__ == "__main__":
     testTrainingSet = [[0, 1], [1, 0], [.5, .5]]

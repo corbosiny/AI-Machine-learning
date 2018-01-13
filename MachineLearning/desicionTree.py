@@ -76,7 +76,7 @@ class DesicionTree():
         return trueSet, falseSet
         
     
-    def predict(self, point):
+    def predictModelOutput(self, point):
         currentNode = self.rootNode
         while isinstance(currentNode, DesicionNode):
             if currentNode.question.evaluate(point):
@@ -87,13 +87,16 @@ class DesicionTree():
 
         if currentNode is None:
             return None
-        print(currentNode.predict())
         return currentNode.predict()
+
+    def predict(self, dataset):
+        predictions = [self.predictModelOutput(dataPoint) for dataPoint in dataset]
+        return predictions
 
 if __name__ == "__main__":
     trainingData = [['Green', 3, 'Apple'], ['Yellow', 3, 'Apple'], ['Red', 1, 'Grape'], ['Red', 1, 'Grape'], ['Yellow', 3, 'Lemon']]
     labels = ['color', 'diameter', 'label']
     tree = DesicionTree(trainingData, labels)
-    tree.predict(trainingData[0])
+    tree.predictModelOutput(trainingData[0])
 
     

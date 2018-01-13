@@ -42,11 +42,11 @@ class NaiveBayesTester():
                 assert(variance == self.testClassifier.featureDistributionsByClass[label][featureNum].sigma2)
     
     def testPredictions(self):
-        assert(0 == self.testClassifier.predict([3, 1]))
-        assert(0 == self.testClassifier.predict([3]))
-        assert(2 == self.testClassifier.predict([18]))
-        assert(2 == self.testClassifier.predict([21]))
-        assert(1 == self.testClassifier.predict([3, 2]))
+        assert(0 == self.testClassifier.predictModelOutput([3, 1]))
+        assert(0 == self.testClassifier.predictModelOutput([3]))
+        assert(2 == self.testClassifier.predictModelOutput([18]))
+        assert(2 == self.testClassifier.predictModelOutput([21]))
+        assert(1 == self.testClassifier.predictModelOutput([3, 2]))
     
 if __name__ == "__main__":
     tester = NaiveBayesTester()
