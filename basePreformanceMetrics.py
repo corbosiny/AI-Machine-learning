@@ -36,8 +36,17 @@ def zeroRuleRegression(trainingData, testingData):
 
 
 def confusionMatrix(actual, predicted):
-    pass
-    
+    uniqueLabels = set(actual)
+    numericalValueOfLabels = {label : i for i, label in enumerate(uniqueLabels)}
+
+    confusionMatrix = [[0 for x in range(len(uniqueLabels))] for x in range(len(uniqueLabels))] #making an n^2 matrix
+    for entryNum in range(len(actual)):
+        actualValue = numericalValueOfLabels[actual[entryNum]]
+        predictedValue = numericalValueOfLabels[predicted[entryNum]]
+        confusionMatrix[actualValue][predictedValue] += 1
+            
+    return uniqueLabels, confusionMatrix
+
 
 if __name__ == "__main__":
     trainingSet = [[0, 2, 'Green'], [1, 4, 'Red'], [5, 2, 'Yellow'], [1, 1, 'Green'], [0, 0, 'Blue']]
@@ -49,3 +58,8 @@ if __name__ == "__main__":
     trainRegressionSet = [[2,3,4], [1,1,5], [2,3,6], [1,2,7]]
     testRegressionSet = [[], [], []]
     print("Zero Regression Rule: ", zeroRuleRegression(trainRegressionSet, testRegressionSet))
+
+    actual = [0,0,0,0,0,1,1,1,1,1]
+    predicted = [0,1,1,0,0,1,0,1,1,1]
+    uniqueLabels, confusionMatrix = confusionMatrix(actual, predicted)
+    print(confusionMatrix)
