@@ -11,7 +11,7 @@ class Connect4PlayerRandom(Connect4PlayerShell):   #the template most of our fun
 
 
     def generateMove(self, board):
-        move = random.randint(0, 5)                     
+        move = random.randint(0, board.boardLength - 1)                     
         return move
 
     

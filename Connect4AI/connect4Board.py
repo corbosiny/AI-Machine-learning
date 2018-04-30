@@ -1,10 +1,15 @@
+defaultBoardLength = 7
+defaultBoardHeight = 6
+
 class Connect4Board():
     
-    def __init__(self):
+    def __init__(self, length= defaultBoardLength, height= defaultBoardHeight):
+        self.boardLength = length
+        self.boardHeight = height
         self.clearBoard()
         
     def clearBoard(self):
-        self.rows = [['-' for x in range(6)] for y in range(6)]
+        self.rows = [['-' for x in range(self.boardLength)] for y in range(self.boardHeight)]
         self.lastMove = []
 
     def updateBoard(self, column, sym):
@@ -14,7 +19,7 @@ class Connect4Board():
         self.lastMove = [row, column]
 
     def checkIfInvalidMove(self, column):
-        if column > 5 or column < 0:                     
+        if column > self.boardLength - 1 or column < 0:                     
             raise InvalidMoveError('Invalid move %d, not in column range' % (column))
             return True
 
@@ -25,7 +30,7 @@ class Connect4Board():
         return False
 
     def calculateLastMovesRow(self, column):
-        row = 5
+        row = self.boardHeight - 1
         while self.rows[row][column] != '-':
             row -= 1
         return row
@@ -43,16 +48,16 @@ class Connect4Board():
     def checkHorizontal(self):                                                 
         results = []
         currentColumn = self.lastMove[1]
-        if currentColumn < 3:
+        if currentColumn < self.boardLength - 3:
             results.append(self.checkThreeInARow(0, 1))
 
         if currentColumn > 2:
             results.append(self.checkThreeInARow(0, -1))
 
-        if currentColumn < 4 and currentColumn != 0:
+        if currentColumn < self.boardLength - 2 and currentColumn != 0:
             results.append(self.checkIfInMiddleOfFour(0, 1))
 
-        if currentColumn > 1 and currentColumn != 5:
+        if currentColumn > 1 and currentColumn != self.boardLength - 1:
             results.append(self.checkIfInMiddleOfFour(0, -1))	
 
         return max(results)
@@ -75,10 +80,10 @@ class Connect4Board():
         results = [False]
         currentRow, currentColumn = self.lastMove
     
-        if currentRow > 2 and currentColumn < 3:
+        if currentRow > 2 and currentColumn < self.boardLength - 3:
             results.append(self.checkThreeInARow(-1, 1))
 
-        if (currentRow > 1 and currentRow != 5) and (currentColumn < 4 and currentColumn != 0):
+        if (currentRow > 1 and currentRow != self.boardHeight - 1) and (currentColumn < self.boardLength - 2 and currentColumn != 0):
             results.append(self.checkIfInMiddleOfFour(-1, 1))
         
         return max(results)
@@ -87,10 +92,10 @@ class Connect4Board():
         results = [False]
         currentRow, currentColumn = self.lastMove
         
-        if currentRow < 3 and currentColumn < 3:
+        if currentRow < self.boardHeight - 3 and currentColumn < self.boardLength - 3:
             results.append(self.checkThreeInARow(1, 1))
 
-        if (currentRow < 4 and currentRow != 0) and (currentColumn < 4 and currentColumn != 0):
+        if (currentRow < self.boardHeight - 2 and currentRow != 0) and (currentColumn < self.boardLength - 2 and currentColumn != 0):
             results.append(self.checkIfInMiddleOfFour(1, 1))
 
         return max(results)
@@ -104,7 +109,7 @@ class Connect4Board():
         if currentRow > 2 and currentColumn > 2:
             results.append(self.checkThreeInARow(-1, -1))
             
-        if (currentRow > 1 and currentRow != 5) and (currentColumn > 1 and currentColumn != 5):
+        if (currentRow > 1 and currentRow != self.boardHeight - 1) and (currentColumn > 1 and currentColumn != self.boardLength - 1):
             results.append(self.checkIfInMiddleOfFour(-1, -1))
 
         return max(results)
@@ -112,10 +117,10 @@ class Connect4Board():
     def checkLowerLeftDiagnol(self):
         results = [False]
         currentRow, currentColumn = self.lastMove
-        if currentRow < 3 and currentColumn > 2:
+        if currentRow < self.boardHeight - 3 and currentColumn > 2:
             results.append(self.checkThreeInARow(1, -1))
 
-        if (currentRow < 4 and currentRow != 0) and (currentColumn > 1 and currentColumn != 5):
+        if (currentRow < self.boardHeight - 2 and currentRow != 0) and (currentColumn > 1 and currentColumn != self.boardLength - 1):
             results.append(self.checkIfInMiddleOfFour(1, -1))
             
         return max(results)
@@ -151,10 +156,13 @@ class Connect4Board():
     
     def __str__(self):         
         boardStr = ''
-        for row in self.rows:
+        for row in self.rows:           #printing out rows
             boardStr += str(row)
             boardStr += '\n'
-        boardStr += "[ 1    2    3    4    5    6 ]\n\n"
+        boardStr += "[ 1"
+        for col in range(1, self.boardLength): #adding in column nums
+            boardStr += "    " + str(col + 1) 
+        boardStr += ' ]\n\n'
         return boardStr 
 
 
@@ -163,13 +171,62 @@ class InvalidMoveError(Exception):
     def __init__(self, message):
         super(InvalidMoveError, self).__init__(message)
 
+##def checkBoardWorking(board):
+##    checkHorizontalWorking(board)
+##    checkVerticalWorking(board)
+##    checkDiagnolsWorking(board)
+##    checkInvalidMoves(board)
+##    
+##def checkHorizontalWorking(board):
+##    for row in range(board.boardHeight):
+##        for column in range(board.boardLength - 3):
+##            for i in range(column, column + 4):
+##
+##            assert(newBoard.checkWin() == True)
+##            board.clearBoard()        
+##
+##def checkVerticalWorking(board):
+##    for column in range(board.boardLength):
+##        for row in range(4):
+##            board.updateBoard(column)
+##        assert(board.checkWin() == True)
+##        board.clearBoard()
+##    
+##def checkDiagnolsWorking(board):
+##    checkLeftDiagnolWorking(board)
+##    checkRightDiagnolWorking(board)
+##
+##def checkLeftDiagnolWorking(board):
+##    board.clearBoard()
+##    
+##def checkRightDiagnolWorking(board):
+##    board.clearBoard()
+##
+##def checkInvalidMoves(board):
+##    assert(checkInvalidMove(board, board.boardLength) == True)
+##    board.clearBoard()
+##    assert(checkInvalidMove(board, -1) == True)
+##    board.clearBoard()
+##    for column in range(board.boardLength):
+##        for row in range(board.boardHeight):
+##            board.rows[row][column] = 'X'
+##        assert(checkInvalidMove(board, column) == True)
+##        
+##    board.clearBoard()
+##
+##def checkInvalidMove(board, move):
+##    pass
+##    
+
 if __name__ == "__main__":
     newBoard = Connect4Board()
+    #checkBoardWorking(newBoard)
+    #print("Board diagnostics passed!")
     print(newBoard)
+    newBoard.rows[5][0] = 'X'
+    newBoard.rows[4][0] = 'X'
+    newBoard.rows[3][0] = 'X'
     newBoard.rows[2][0] = 'X'
-    newBoard.rows[3][1] = 'X'
-    newBoard.rows[4][2] = 'X'
-    newBoard.rows[5][3] = 'X'
     print(newBoard)
-    newBoard.lastMove = [5,3]
+    newBoard.lastMove = [2,0]
     print(newBoard.checkWin())

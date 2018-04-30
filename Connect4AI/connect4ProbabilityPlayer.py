@@ -10,14 +10,14 @@ class Connect4ProbabilityPlayer(Connect4PlayerShell):
     URGENT_MOVE_SCORE = -1
 
     def __init__(self, playerID):
-        self.wins = 0
         self.numberOfMyPieces = 0
         self.numberOfOpponentPieces = 0
         super(Connect4ProbabilityPlayer, self).__init__(playerID)
 
     def generateMove(self, board):
         self.board = board
-
+        self.boardLength = board.boardLength
+        self.boardHeight = board.boardHeight
         self.openColumns = self.determineOpenColumns()
         self.correspondingRows = self.determineOpenRows()
 
@@ -32,7 +32,7 @@ class Connect4ProbabilityPlayer(Connect4PlayerShell):
 
     def determineOpenColumns(self):
         openColumns = []
-        for column in range(6):
+        for column in range(self.boardLength):
             if self.board[0][column] == '-':
                 openColumns.append(column)
 
@@ -47,7 +47,7 @@ class Connect4ProbabilityPlayer(Connect4PlayerShell):
         return openRows
 
     def determineOpenRow(self, columnOfMove):
-        rowNumber = 5
+        rowNumber = self.boardHeight - 1
         while self.board[rowNumber][columnOfMove] != '-':
             rowNumber -= 1
         return rowNumber
@@ -135,8 +135,8 @@ class Connect4ProbabilityPlayer(Connect4PlayerShell):
 
 
     def withinBounds(self, row, column):
-        if row >= 0 and row <= 5:
-            if column >= 0 and column <= 5:
+        if row >= 0 and row <= self.boardHeight - 1:
+            if column >= 0 and column <= self.boardLength - 1:
                 return True
 
         return False
