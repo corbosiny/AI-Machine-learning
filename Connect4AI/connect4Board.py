@@ -171,62 +171,83 @@ class InvalidMoveError(Exception):
     def __init__(self, message):
         super(InvalidMoveError, self).__init__(message)
 
-##def checkBoardWorking(board):
-##    checkHorizontalWorking(board)
-##    checkVerticalWorking(board)
-##    checkDiagnolsWorking(board)
-##    checkInvalidMoves(board)
-##    
-##def checkHorizontalWorking(board):
-##    for row in range(board.boardHeight):
-##        for column in range(board.boardLength - 3):
-##            for i in range(column, column + 4):
-##
-##            assert(newBoard.checkWin() == True)
-##            board.clearBoard()        
-##
-##def checkVerticalWorking(board):
-##    for column in range(board.boardLength):
-##        for row in range(4):
-##            board.updateBoard(column)
-##        assert(board.checkWin() == True)
-##        board.clearBoard()
-##    
-##def checkDiagnolsWorking(board):
-##    checkLeftDiagnolWorking(board)
-##    checkRightDiagnolWorking(board)
-##
-##def checkLeftDiagnolWorking(board):
-##    board.clearBoard()
-##    
-##def checkRightDiagnolWorking(board):
-##    board.clearBoard()
-##
-##def checkInvalidMoves(board):
-##    assert(checkInvalidMove(board, board.boardLength) == True)
-##    board.clearBoard()
-##    assert(checkInvalidMove(board, -1) == True)
-##    board.clearBoard()
-##    for column in range(board.boardLength):
-##        for row in range(board.boardHeight):
-##            board.rows[row][column] = 'X'
-##        assert(checkInvalidMove(board, column) == True)
-##        
-##    board.clearBoard()
-##
-##def checkInvalidMove(board, move):
-##    pass
-##    
+def checkBoardWorking(board):
+    checkHorizontalWorking(board)
+    checkVerticalWorking(board)
+    checkDiagnolsWorking(board)
+    checkInvalidMoves(board)
+    
+def checkHorizontalWorking(board):
+    for row in range(board.boardHeight):
+        for column in range(board.boardLength - 3):
+            for i in range(column, column + 4):
+                board.rows[row][i] = 'X'
+            for j in range(column, column + 4):
+                board.lastMove = [row, j]
+                assert(board.checkWin() == True)
+            board.clearBoard()        
+
+def checkVerticalWorking(board):
+    for column in range(board.boardLength):
+        for row in range(board.boardHeight):
+            board.updateBoard(column, 'X')
+            if(row > 2):
+                assert(board.checkWin() == True)
+        board.clearBoard()
+    
+def checkDiagnolsWorking(board):
+    checkLeftDiagnolWorking(board)
+    checkRightDiagnolWorking(board)
+
+def checkLeftDiagnolWorking(board):
+    for column in range(board.boardLength - 3):
+        for row in range(board.boardHeight - 1, 2, -1):
+            for i in range(0, 4):
+                board.rows[row - i][column + i] = 'X'
+            for j in range(0, 4):
+                board.lastMove = [row - j, column + j]
+                assert(board.checkWin() == True)
+            board.clearBoard()
+                
+    board.clearBoard()
+    
+def checkRightDiagnolWorking(board):
+    for column in range(board.boardLength - 3):
+        for row in range(board.boardHeight - 3):
+            for i in range(0, 4):
+                board.rows[row + i][column + i] = 'X'
+            for j in range(0, 4):
+                board.lastMove = [row + j, column + j]
+                assert(board.checkWin() == True)
+            board.clearBoard()
+    board.clearBoard()
+
+def checkInvalidMoves(board):
+    try:
+        board.checkWin()
+        raise('Check win did not return error with empty board')
+    except:
+        pass
+    assert(checkInvalidMove(board, board.boardLength) == True)
+    board.clearBoard()
+    assert(checkInvalidMove(board, -1) == True)
+    board.clearBoard()
+    for column in range(board.boardLength):
+        for row in range(board.boardHeight):
+            assert(checkInvalidMove(board, column) == False)
+        assert(checkInvalidMove(board, column) == True)
+        
+    board.clearBoard()
+
+def checkInvalidMove(board, move):
+    try:
+        board.updateBoard(move, 'X')
+        return False
+    except:
+        return True
+    
 
 if __name__ == "__main__":
     newBoard = Connect4Board()
-    #checkBoardWorking(newBoard)
-    #print("Board diagnostics passed!")
-    print(newBoard)
-    newBoard.rows[5][0] = 'X'
-    newBoard.rows[4][0] = 'X'
-    newBoard.rows[3][0] = 'X'
-    newBoard.rows[2][0] = 'X'
-    print(newBoard)
-    newBoard.lastMove = [2,0]
-    print(newBoard.checkWin())
+    checkBoardWorking(newBoard)
+    print("Board diagnostics passed!")
