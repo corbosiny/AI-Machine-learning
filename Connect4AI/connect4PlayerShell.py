@@ -1,5 +1,6 @@
 import connect4
 import threading
+import random
 
 class Connect4PlayerShell():
 
@@ -15,7 +16,25 @@ class Connect4PlayerShell():
         self.playerSymbol = game.addPlayer(self)
 
     def generateMove(self, board):
-        pass                #decendant classes will fill this in
+        move = random.randint(0, board.boardLength - 1)                     
+        return move
 
 
 
+if __name__ == "__main__":
+    newGame = connect4.Connect4Game(True)
+
+    player1 = Connect4PlayerShell(1)
+    player2 = Connect4PlayerShell(2)
+
+    newGame.start()
+
+    player1.joinGame(newGame)
+    player2.joinGame(newGame)
+
+    while newGame.gameIsNotOver():
+        pass
+
+    print("Done")
+
+    
