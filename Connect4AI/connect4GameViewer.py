@@ -21,7 +21,7 @@ class Connect4GameViewer(threading.Thread):
 
     def initDisplay(self):
         self.root = Tk()
-        self.textBox = Text(self.root, height= 10,width= 30)
+        self.textBox = Text(self.root, height= 10,width= 5 * self.game.board.boardLength)
         self.textBox.pack()
     
     def updateGame(self):
