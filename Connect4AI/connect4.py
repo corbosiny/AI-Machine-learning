@@ -4,20 +4,24 @@ from connect4Board import *
 import connect4PlayerRandom
 from connect4HumanPlayer import Connect4HumanPlayer
 
+DEFAULT_BOARD_LENGTH = 7
+DEFAULT_BOARD_HEIGHT = 6
+
 class Connect4Game(threading.Thread):
 
     playerSymbols = ['X','O']
     emptySpotSymbol = '-'
 
-    def __init__(self, displayGame = False):
-        
+    def __init__(self, displayGame = False, boardLength= DEFAULT_BOARD_LENGTH, boardHeight= DEFAULT_BOARD_HEIGHT):
         self.displayGame = displayGame
+        self.boardLength = DEFAULT_BOARD_LENGTH
+        self.boardHeight = DEFAULT_BOARD_HEIGHT
         self.initializeGame()
         super(Connect4Game, self).__init__()
 
 
     def initializeGame(self):
-        self.board = Connect4Board()
+        self.board = Connect4Board(self.boardLength, self.boardHeight)
         self.players = []
         self.resetGameState()
 

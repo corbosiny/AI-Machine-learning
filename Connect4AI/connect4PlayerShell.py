@@ -7,7 +7,8 @@ class Connect4PlayerShell():
     def __init__(self, playerID = None):
         self.playerID = playerID
         self.wins = 0
-
+        self.prepareForNewGame()
+        
     def prepareForNewGame(self):
         self.playerSymbol = None
 
@@ -18,7 +19,6 @@ class Connect4PlayerShell():
     def generateMove(self, board):
         move = random.randint(0, board.boardLength - 1)                     
         return move
-
 
 
 if __name__ == "__main__":

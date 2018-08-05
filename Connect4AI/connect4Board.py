@@ -1,9 +1,9 @@
-defaultBoardLength = 7
-defaultBoardHeight = 6
+DEFAULT_BOARD_LENGTH = 7
+DEFAULT_BOARD_HEIGHT = 6
 
 class Connect4Board():
     
-    def __init__(self, length= defaultBoardLength, height= defaultBoardHeight):
+    def __init__(self, length= DEFAULT_BOARD_LENGTH, height= DEFAULT_BOARD_HEIGHT):
         self.boardLength = length
         self.boardHeight = height
         self.clearBoard()
