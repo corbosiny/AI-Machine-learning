@@ -16,6 +16,11 @@ class Connect4HumanPlayer(Connect4PlayerShell):
 
 
 if __name__ == "__main__":
+    import connect4PlayerTester
+    tester = connect4PlayerTester.PlayerTester(Connect4HumanPlayer)
+    assert(tester.testPlayers() == True)
+    print("Initial Diagnostics Passed!\n\n")
+    
     newGame = connect4.Connect4Game(True)
     newGame.start()
     player1 = Connect4HumanPlayer()

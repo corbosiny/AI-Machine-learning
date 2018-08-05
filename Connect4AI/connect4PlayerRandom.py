@@ -16,6 +16,11 @@ class Connect4PlayerRandom(Connect4PlayerShell):   #the template most of our fun
 
     
 if __name__ == "__main__":                              #test code that pits two random players against one another
+    import connect4PlayerTester
+    tester = connect4PlayerTester.PlayerTester(Connect4PlayerRandom)
+    assert(tester.testPlayers() == True)
+    print("Initial Diagnostics Passed!\n\n")
+    
     newGame = connect4.Connect4Game(True)
     
     
