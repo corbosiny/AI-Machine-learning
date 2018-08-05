@@ -182,6 +182,9 @@ def checkHorizontalWorking(board):
         for column in range(board.boardLength - 3):
             for i in range(column, column + 4):
                 board.rows[row][i] = 'X'
+                if(i < column + 3):
+                    board.lastMove = [row, i]
+                    assert(board.checkWin() == False)
             for j in range(column, column + 4):
                 board.lastMove = [row, j]
                 assert(board.checkWin() == True)
@@ -193,6 +196,8 @@ def checkVerticalWorking(board):
             board.updateBoard(column, 'X')
             if(row > 2):
                 assert(board.checkWin() == True)
+            else:
+                assert(board.checkWin() == False)    
         board.clearBoard()
     
 def checkDiagnolsWorking(board):
@@ -204,6 +209,9 @@ def checkLeftDiagnolWorking(board):
         for row in range(board.boardHeight - 1, 2, -1):
             for i in range(0, 4):
                 board.rows[row - i][column + i] = 'X'
+                if(i < 3):
+                    board.lastMove = [row - i, column - i]
+                    assert(board.checkWin() == False)
             for j in range(0, 4):
                 board.lastMove = [row - j, column + j]
                 assert(board.checkWin() == True)
@@ -216,6 +224,9 @@ def checkRightDiagnolWorking(board):
         for row in range(board.boardHeight - 3):
             for i in range(0, 4):
                 board.rows[row + i][column + i] = 'X'
+                if(i < 3):
+                    board.lastMove = [row + i, column + i]
+                    assert(board.checkWin() == False)
             for j in range(0, 4):
                 board.lastMove = [row + j, column + j]
                 assert(board.checkWin() == True)
@@ -251,3 +262,4 @@ if __name__ == "__main__":
     newBoard = Connect4Board()
     checkBoardWorking(newBoard)
     print("Board diagnostics passed!")
+    
