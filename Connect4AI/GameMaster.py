@@ -121,7 +121,7 @@ if __name__ == "__main__":
     players = [Connect4PlayerRandom(x) for x in range(16)]
     players.append(Connect4ProbabilityPlayer(16))
     
-    games = [Connect4Game() for x in range(8)]
+    games = [Connect4Game(False, 10, 10) for x in range(8)]
 
     for game in games:
         game.start()

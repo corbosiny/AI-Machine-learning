@@ -14,8 +14,8 @@ class Connect4Game(threading.Thread):
 
     def __init__(self, displayGame = False, boardLength= DEFAULT_BOARD_LENGTH, boardHeight= DEFAULT_BOARD_HEIGHT):
         self.displayGame = displayGame
-        self.boardLength = DEFAULT_BOARD_LENGTH
-        self.boardHeight = DEFAULT_BOARD_HEIGHT
+        self.boardLength = boardLength
+        self.boardHeight = boardHeight
         self.initializeGame()
         super(Connect4Game, self).__init__()
 
@@ -114,14 +114,14 @@ class Connect4Game(threading.Thread):
 
 
 def checkIfInitialBoardVariablesAreValid(game):
-    assert(game.boardHeight == DEFAULT_BOARD_HEIGHT)
-    assert(game.boardLength == DEFAULT_BOARD_LENGTH)
+    assert(game.boardHeight == 10)
+    assert(game.boardLength == 10)
     assert(game.players == [])
     assert(game.turn == 0)
     assert(game.numMoves == 0)
     assert(game.gameOver == False)
     assert(game.winner == None)
-    assert(game.displayGame == False)
+    assert(game.displayGame == True)
     assert(game.board != None)
     
     return True
@@ -177,7 +177,7 @@ def checkCleanUp(game):
     
 
 def runGameDiagnostics():
-    newGame = Connect4Game()
+    newGame = Connect4Game(True, 10, 10)
     assert(checkIfInitialBoardVariablesAreValid(newGame) == True)
     assert(checkAddingPlayers(newGame) == True)
     assert(checkRemovingPlayers(newGame) == True)
@@ -187,6 +187,7 @@ def runGameDiagnostics():
     return True
 
 if __name__ == "__main__":
+    print("Running Initial Diagnostics...")
     assert(runGameDiagnostics() == True)
     print("Initial Diagnostics Passed!\n\n")
     

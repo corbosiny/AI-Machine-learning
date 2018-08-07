@@ -21,7 +21,7 @@ class Connect4GameViewer(threading.Thread):
 
     def initDisplay(self):
         self.root = Tk()
-        self.textBox = Text(self.root, height= 10,width= 5 * self.game.board.boardLength)
+        self.textBox = Text(self.root, height= self.game.board.boardHeight + 1, width= 5 * self.game.board.boardLength)
         self.textBox.pack()
     
     def updateGame(self):
@@ -43,7 +43,7 @@ class Connect4GameViewer(threading.Thread):
 
 
 if __name__ == "__main__":
-    newGame = Connect4Game()
+    newGame = Connect4Game(False, 10, 10)
     viewer = Connect4GameViewer(newGame)
     viewer.start()
     player1 = Connect4PlayerRandom()
