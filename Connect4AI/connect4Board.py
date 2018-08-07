@@ -161,7 +161,10 @@ class Connect4Board():
             boardStr += '\n'
         boardStr += "[ 1"
         for col in range(1, self.boardLength): #adding in column nums
-            boardStr += "    " + str(col + 1) 
+            if col < 9:
+                boardStr += "    " + str(col + 1) 
+            else:
+                boardStr += " " * (5 - len(str(col + 1))) + str(col + 1)
         boardStr += ' ]\n\n'
         return boardStr 
 

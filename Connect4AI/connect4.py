@@ -114,8 +114,8 @@ class Connect4Game(threading.Thread):
 
 
 def checkIfInitialBoardVariablesAreValid(game):
-    assert(game.boardHeight == 10)
-    assert(game.boardLength == 10)
+    assert(game.boardHeight == 20)
+    assert(game.boardLength == 20)
     assert(game.players == [])
     assert(game.turn == 0)
     assert(game.numMoves == 0)
@@ -177,7 +177,7 @@ def checkCleanUp(game):
     
 
 def runGameDiagnostics():
-    newGame = Connect4Game(True, 10, 10)
+    newGame = Connect4Game(True, 20, 20)
     assert(checkIfInitialBoardVariablesAreValid(newGame) == True)
     assert(checkAddingPlayers(newGame) == True)
     assert(checkRemovingPlayers(newGame) == True)
