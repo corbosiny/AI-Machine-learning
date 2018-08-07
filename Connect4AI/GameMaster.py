@@ -8,7 +8,7 @@ from connect4ProbabilityPlayer import Connect4ProbabilityPlayer
 class GameMaster(threading.Thread):
 
 
-    def __init__(self, gamePool, players, continueTournament = True):
+    def __init__(self, gamePool, players, continueTournament = True, roundsBetweenTraining= 100):
         self.openGamePool = [game for game in gamePool]
         self.closedGamePool = []
         
@@ -17,6 +17,7 @@ class GameMaster(threading.Thread):
 
         self.continueTournament = continueTournament
         self.roundsRun = 0
+        self.roundsBetweenTraining = roundsBetweenTraining
         super(GameMaster, self).__init__()
         
     def run(self):
@@ -25,6 +26,8 @@ class GameMaster(threading.Thread):
             while self.continueTournament:
                 self.startAllGames()
                 self.waitForAllGamesToFinish()
+                if self.roundsRun % self.roundsBetweenTraining == 0:
+                    self.allowPlayersToTrain()
 
             while not self.continueTournament:
                 pass
@@ -77,7 +80,8 @@ class GameMaster(threading.Thread):
             self.resetFinishedGames()
 
         
-
+    def allowPlayersToTrain(self):
+        print("Training players...")
 
 
     def shutOffTournamentViewer(self):
