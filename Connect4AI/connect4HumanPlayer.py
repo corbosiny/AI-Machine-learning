@@ -1,4 +1,4 @@
-import connect4
+import connect4 #Only for testing purposes
 from connect4PlayerShell import Connect4PlayerShell
 
 class Connect4HumanPlayer(Connect4PlayerShell):

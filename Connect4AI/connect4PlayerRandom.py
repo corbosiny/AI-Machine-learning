@@ -1,4 +1,4 @@
-import connect4
+import connect4 #Only for testing purposes
 from connect4PlayerShell import Connect4PlayerShell
 import threading
 import random

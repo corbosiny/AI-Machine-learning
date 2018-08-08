@@ -1,5 +1,5 @@
 import threading
-from connect4 import Connect4Game
+from connect4 import Connect4Game #Only for testing purposes
 from connect4PlayerRandom import Connect4PlayerRandom
 from tkinter import *
 

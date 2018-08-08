@@ -1,4 +1,4 @@
-import connect4
+import connect4 #Only for testing purposes
 import threading
 import random
 
