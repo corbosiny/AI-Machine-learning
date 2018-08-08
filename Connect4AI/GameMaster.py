@@ -5,6 +5,8 @@ from connect4 import Connect4Game
 from connect4PlayerRandom import Connect4PlayerRandom
 from connect4ProbabilityPlayer import Connect4ProbabilityPlayer
 
+DEFAULT_NUM_GAMES = 8
+
 class GameMaster(threading.Thread):
 
 
@@ -81,8 +83,26 @@ class GameMaster(threading.Thread):
 
         
     def allowPlayersToTrain(self):
-        print("Training players...")
+        trainingThreads = []
+        for player in self.waitingPlayers:
+            trainingThread = threading.Thread(target= player.train)
+            trainingThreads.append(trainingThread)
+            trainingThread.start()
 
+        self.waitForPlayersToTrain()
+
+
+    def waitForPlayersToTrain(self):
+        while True:
+            playersDoneTraining = True
+            for player in self.waitingPlayers:
+                if player.doneTraining == False:
+                    playersDoneTraining = False
+                    break
+
+            if playersDoneTraining:
+                break      
+        
 
     def shutOffTournamentViewer(self):
         for viewer in self.gameViewers:
@@ -91,8 +111,6 @@ class GameMaster(threading.Thread):
     def addNewPlayerToPool(self, newPlayer):
         self.waitingPlayers.append(newPlayer)
 
-
-    
 
     def resetFinishedGames(self):
         for game in self.closedGamePool:
@@ -122,10 +140,9 @@ class GameMaster(threading.Thread):
 
         
 if __name__ == "__main__":
-    players = [Connect4PlayerRandom(x) for x in range(16)]
-    players.append(Connect4ProbabilityPlayer(16))
+    players = [Connect4PlayerRandom(x) for x in range(DEFAULT_NUM_GAMES * 2)]
     
-    games = [Connect4Game(False, 10, 10) for x in range(8)]
+    games = [Connect4Game() for x in range(DEFAULT_NUM_GAMES)]
 
     for game in games:
         game.start()
